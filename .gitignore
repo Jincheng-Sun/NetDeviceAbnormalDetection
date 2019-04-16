@@ -1,0 +1,6 @@
+#filepath
+data/
+
+#ide files
+.idea/
+.DS_Store
