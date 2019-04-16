@@ -1,6 +1,7 @@
 #filepath
 data/
 models/
+resources/
 
 #ide files
 .idea/
