@@ -1,41 +1,59 @@
 import numpy as np
 import pandas as pd
-'''load dataset'''
-x_mal = pd.DataFrame(np.load('../data/mal_x.npy'))
-x_normal = pd.DataFrame(np.load('../data/nor_x.npy'))
-y_mal = pd.DataFrame(np.load('../data/mal_y.npy'))
-y_normal = pd.DataFrame(np.load('../data/nor_y.npy'))
 
-'''split dataset'''
+'''load dataset'''
+
+file_path = 'aftconcat'
+real_alarms = pd.DataFrame(np.load('../data/%s/real_alarm_x.npy' % file_path))
+real_alarm_labels = pd.DataFrame(np.load('../data/%s/real_alarm_y.npy' % file_path))
+fake_normal = pd.DataFrame(np.load('../data/%s/fake_normal_x.npy' % file_path))
+fake_normal_labels = pd.DataFrame(np.load('../data/%s/fake_normal_y.npy' % file_path))
+real_normal = pd.DataFrame(np.load('../data/%s/real_normal_x.npy' % file_path))
+real_normal_labels = pd.DataFrame(np.load('../data/%s/real_normal_y.npy' % file_path))
+
+'''extract data'''
 from sklearn.model_selection import train_test_split
 
-X_nor,x_nor,Y_nor,y_nor = train_test_split(x_normal, y_normal, test_size=y_mal.shape[0], random_state=42)
+_, fake_normal_x, _, fake_normal_y = train_test_split(fake_normal,
+                                                      fake_normal_labels,
+                                                      test_size=real_alarms.shape[0], random_state=42)
+_, real_normal_x, _, real_normal_y = train_test_split(real_normal,
+                                                      real_normal_labels,
+                                                      test_size=real_alarms.shape[0] * 2, random_state=42)
 
 '''concatenate'''
-x_mal = pd.concat([x_nor, x_mal], axis=0)
-y_mal = pd.concat([y_nor, y_mal], axis=0)
+train_x = pd.concat([real_alarms, fake_normal_x, real_normal_x], axis=0)
+train_y = pd.concat([real_alarm_labels, fake_normal_y, real_normal_y], axis=0)
 # del X_nor,x_nor,Y_nor,y_nor
-
-'''split the data'''
-X,x,Y,y = train_test_split(x_mal, y_mal, test_size=0.2, random_state=42)
-assert (Y[0].value_counts().shape == y[0].value_counts().shape)
 
 '''encode the data'''
 from keras.models import load_model
 
-encoder = load_model('../models/encoder')
-X = encoder.predict(X)
-x = encoder.predict(x)
+encoder = load_model('../models/%s/encoder' % file_path)
+train_x = pd.DataFrame(encoder.predict(train_x))
 
-np.save('../data/train_x.npy',X)
-np.save('../data/test_x.npy',x)
+# # -------------------------------------------------------------
+'''concatenate after encoding'''
 
-np.save('../data/train_y_all.npy',Y)
-np.save('../data/test_y_all.npy',y)
+train_x = np.concatenate([pd.get_dummies(train_y[1]),train_x], axis=1)  # shape = [11 + 20, -1]
+assert (train_x.shape[1] == 31)
 
-train_bi = Y[0].map(lambda x: 1 if x!=0 else 0)
-test_bi = y[0].map(lambda x: 1 if x!=0 else 0)
+# -------------------------------------------------------------
 
-np.save('../data/train_y_bi',train_bi)
-np.save('../data/test_y_bi',test_bi)
+# '''split the dataset'''
+train_x, test_x, train_y, test_y = train_test_split(train_x, train_y[0], test_size=0.2, random_state=42)
+assert (train_y.value_counts().shape == test_y.value_counts().shape)
 
+# -------------------------------------------------------------
+
+np.save('../data/%s/train_x.npy' % file_path, train_x)
+np.save('../data/%s/test_x.npy' % file_path, test_x)
+
+np.save('../data/%s/train_y_all.npy' % file_path, train_y)
+np.save('../data/%s/test_y_all.npy' % file_path, test_y)
+
+train_y_bi = train_y.map(lambda x: 1 if x != 'Normal' else 0)
+test_y_bi = test_y.map(lambda x: 1 if x != 'Normal' else 0)
+
+np.save('../data/%s/train_y_bi.npy' % file_path, train_y_bi)
+np.save('../data/%s/test_y_bi.npy' % file_path, test_y_bi)
