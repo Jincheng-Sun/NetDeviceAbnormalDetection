@@ -27,13 +27,12 @@ data.iloc[:, 2:47] = scaler.fit_transform(data.iloc[:, 2:47])
 '''fill na with 0'''
 data = data.fillna(0)  # shape = (11533,47)
 
-# -----------------------------------------------------------------------
+# -------------------------------------------------------------
+
 '''Consider all the OOSs are abnormal cases'''
-
-
 def in_out_service(data):
     if (data['ALARM'] == 0):
-        if (data['LABEL'] == 'IS'):
+        if (data['LABEL'] == 'IS' or data['LABEL'] == 'n/a'):
             return 'Normal'
         else:
             return 'Malfunction'
@@ -43,6 +42,7 @@ def in_out_service(data):
 
 data['ALARM'] = data.apply(in_out_service, axis=1)
 data = data.drop(['LABEL'], axis=1)
+
 # -------------------------------------------------------------
 
 '''one-hot the device type and concatenate with the original data'''
@@ -59,34 +59,49 @@ real_alarms = real_alarms.drop(['ALARM'], axis=1)
 # OOS/IS-ANR data
 fake_normal = data[data['ALARM'] == 'Malfunction']
 data = data.drop(fake_normal.index)
-fake_normal_label = fake_normal['ALARM']
+fake_normal_labels = fake_normal['ALARM']
 fake_normal = fake_normal.drop(['ALARM'], axis=1)
 
 # Normal data
 real_normal = data[data['ALARM'] == 'Normal']
-label_data = data['ALARM']
-real_alarms = real_alarms.drop(['ALARM'], axis=1)
-data = data.drop(['ALARM'], axis=1)
+del data
+real_normal_labels = real_normal['ALARM']
+real_normal = real_normal.drop(['ALARM'], axis=1)
 
-'''only keep the normal in data'''
-index = label_data[label_data != 0]
-data = data.drop(index.index)
-label_data = label_data.drop(index.index)
+file_path = 'preconcat'
+
+# -------------------------------------------------------------
+#
+# '''extract data with alarms in alm_list'''
+# # data with alarms that occurs 50 times more in the dataset (OOS not included)
+# real_alarms = data[data['ALARM'].isin(alm_list)]
+# data = data.drop(real_alarms.index)
+# real_alarm_labels = real_alarms[['ALARM', 'GROUPBYKEY']]
+# real_alarms = real_alarms.drop(['ALARM', 'GROUPBYKEY'], axis=1)
+#
+# # OOS/IS-ANR data
+# fake_normal = data[data['ALARM'] == 'Malfunction']
+# data = data.drop(fake_normal.index)
+# fake_normal_labels = fake_normal[['ALARM', 'GROUPBYKEY']]
+# fake_normal = fake_normal.drop(['ALARM', 'GROUPBYKEY'], axis=1)
+#
+# # Normal data
+# real_normal = data[data['ALARM'] == 'Normal']
+# del data
+# real_normal_labels = real_normal[['ALARM', 'GROUPBYKEY']]
+# real_normal = real_normal.drop(['ALARM', 'GROUPBYKEY'], axis=1)
+#
+# file_path = 'aftconcat'
+
+# -------------------------------------------------------------
 
 '''save the scaler'''
 np.save('../data/scaler', scaler)
 
 '''save file'''
-np.save('../data/mal_x', real_alarms)
-np.save('../data/mal_y', real_alarm_labels)
-np.save('../data/nor_x', data)
-np.save('../data/nor_y', label_data)
-#
-# # -------------------------------------------------------------
-#
-#
-#
-# real_normal = data[data['ALARM'] == 'Normal']
-#
-# fake_normal = data[data['ALARM'] == 'Malfunction']
-# abnormal = data[data['ALARM'].isin(alm_list)]
+np.save('../data/%s/real_alarm_x.npy' % file_path, real_alarms)
+np.save('../data/%s/real_alarm_y.npy' % file_path, real_alarm_labels)
+np.save('../data/%s/fake_normal_x.npy' % file_path, fake_normal)
+np.save('../data/%s/fake_normal_y.npy' % file_path, fake_normal_labels)
+np.save('../data/%s/real_normal_x.npy' % file_path, real_normal)
+np.save('../data/%s/real_normal_y.npy' % file_path, real_normal_labels)
