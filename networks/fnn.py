@@ -4,10 +4,11 @@ from keras.models import load_model
 from keras import Model
 import numpy as np
 from sklearn.externals import joblib
+
 '''global variance'''
-file_path = 'aftconcat'
+file_path = 'origindata'
 # '''build model'''
-# input = Input(shape=(31,))
+# input = Input(shape=(56,))
 # layer1 = Dense(64,activation='relu')(input)
 # layer2 = Dense(128,activation='relu')(layer1)
 # output = Dense(16,activation='softmax')(layer2)
@@ -16,7 +17,7 @@ file_path = 'aftconcat'
 # model.compile(optimizer='adam',loss='categorical_crossentropy',metrics=['accuracy'])
 #
 # '''load data'''
-
+#
 # train_x = np.load('../data/%s/train_x.npy' % file_path)
 # train_y_all = np.load('../data/%s/train_y_all.npy' % file_path)
 #
@@ -50,30 +51,33 @@ file_path = 'aftconcat'
 # model.save('../models/%s/fnnmodel'%file_path)
 # del model
 # del x_train,x_val,y_train,y_val
+# ----------------------------------------------------------------------
+
+### ASSESSMENT
 
 '''load testset and encoders'''
 
-x_test=np.load('../data/%s/test_x.npy'%file_path)
-y_test=np.load('../data/%s/test_y_all.npy'%file_path)
+x_test = np.load('../data/%s/test_x.npy' % file_path)
+y_test = np.load('../data/%s/test_y_all.npy' % file_path)
 labelencoder = joblib.load('../models/labelencoder')
 ohencoder = joblib.load('../models/OneHotEncoder')
-model = load_model('../models/%s/fnnmodel'%file_path)
-y_test = labelencoder.transform(y_test).reshape([-1,1])
+model = load_model('../models/%s/fnnmodel' % file_path)
+y_test = labelencoder.transform(y_test).reshape([-1, 1])
 label = labelencoder.classes_.tolist()
 
 '''predict'''
 
 y_pred = model.predict(x_test)
-y_pred = np.argmax(y_pred,axis=1).reshape([-1,1])
+y_pred = np.argmax(y_pred, axis=1).reshape([-1, 1])
 
 '''Assessment'''
 
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.metrics import accuracy_score
 
-print(classification_report(y_true=y_test,y_pred=y_pred))
-cm = confusion_matrix(y_true=y_test,y_pred=y_pred)
-acc = accuracy_score(y_true=y_test,y_pred=y_pred)
+print(classification_report(y_true=y_test, y_pred=y_pred))
+cm = confusion_matrix(y_true=y_test, y_pred=y_pred)
+acc = accuracy_score(y_true=y_test, y_pred=y_pred)
 
 '''Visualization'''
 
