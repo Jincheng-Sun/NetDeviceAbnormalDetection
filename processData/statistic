@@ -1,0 +1,34 @@
+Normal                                    1731521
+Malfunction                                846911
+Laser Off Far End Failure Triggered          3214
+Local Fault                                  2837
+Frequency Out Of Range                       1314
+Loss Of Frame                                1159
+Remote Fault                                  975
+Loss Of Signal                                719
+Excessive Error Ratio                         430
+Rx Power Out Of Range                         245
+GCC0 Link Failure                             140
+Loss Of Clock                                 127
+OSC OSPF Adjacency Loss                       121
+Link Down                                     106
+Gauge Threshold Crossing Alert Summary         79
+OTU Signal Degrade                             67
+OTU BDI                                        49
+GCC0 OSPF Adjacency Loss                       23
+Shutoff Threshold Crossed                      21
+OSC Signal Degrade                             15
+Pre-FEC Signal Fail                            15
+ODU AIS                                        14
+Rx Channel Power Out Of Range                  10
+ODU BDI                                         9
+Automatic Shutoff                               8
+Optical Line Fail                               4
+Pre-FEC Signal Degrade                          4
+Protection Switch Complete - Revertive          3
+OSC Loss Of Signal                              2
+Loss Of Channel                                 2
+Automatic Shutoff Disabled                      2
+TX Tuning in Progress                           2
+Loss Of Data Synch                              1
+ODU LCK                                         1

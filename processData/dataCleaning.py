@@ -72,36 +72,59 @@ data = data.drop(['LABEL'], axis=1)
 
 # -------------------------------------------------------------
 #
-'''extract data with alarms in alm_list'''
-# data with alarms that occurs 50 times more in the dataset (OOS not included)
-real_alarms = data[data['ALARM'].isin(alm_list)]
-data = data.drop(real_alarms.index)
-real_alarm_labels = real_alarms[['ALARM', 'GROUPBYKEY']]
-real_alarms = real_alarms.drop(['ALARM', 'GROUPBYKEY'], axis=1)
+# '''extract data with alarms in alm_list'''
+# # data with alarms that occurs 50 times more in the dataset (OOS not included)
+# real_alarms = data[data['ALARM'].isin(alm_list)]
+# data = data.drop(real_alarms.index)
+# real_alarm_labels = real_alarms[['ALARM', 'GROUPBYKEY']]
+# real_alarms = real_alarms.drop(['ALARM', 'GROUPBYKEY'], axis=1)
+#
+# # OOS/IS-ANR data
+# fake_normal = data[data['ALARM'] == 'Malfunction']
+# data = data.drop(fake_normal.index)
+# fake_normal_labels = fake_normal[['ALARM', 'GROUPBYKEY']]
+# fake_normal = fake_normal.drop(['ALARM', 'GROUPBYKEY'], axis=1)
+#
+# # Normal data
+# real_normal = data[data['ALARM'] == 'Normal']
+# del data
+# real_normal_labels = real_normal[['ALARM', 'GROUPBYKEY']]
+# real_normal = real_normal.drop(['ALARM', 'GROUPBYKEY'], axis=1)
+#
+# file_path = 'aftconcat'
 
-# OOS/IS-ANR data
-fake_normal = data[data['ALARM'] == 'Malfunction']
-data = data.drop(fake_normal.index)
-fake_normal_labels = fake_normal[['ALARM', 'GROUPBYKEY']]
-fake_normal = fake_normal.drop(['ALARM', 'GROUPBYKEY'], axis=1)
-
-# Normal data
-real_normal = data[data['ALARM'] == 'Normal']
-del data
-real_normal_labels = real_normal[['ALARM', 'GROUPBYKEY']]
-real_normal = real_normal.drop(['ALARM', 'GROUPBYKEY'], axis=1)
-
-file_path = 'aftconcat'
-
-# -------------------------------------------------------------
-
-'''save the scaler'''
-np.save('../data/scaler', scaler)
-
-'''save file'''
-np.save('../data/%s/real_alarm_x.npy' % file_path, real_alarms)
-np.save('../data/%s/real_alarm_y.npy' % file_path, real_alarm_labels)
-np.save('../data/%s/fake_normal_x.npy' % file_path, fake_normal)
-np.save('../data/%s/fake_normal_y.npy' % file_path, fake_normal_labels)
-np.save('../data/%s/real_normal_x.npy' % file_path, real_normal)
-np.save('../data/%s/real_normal_y.npy' % file_path, real_normal_labels)
+# # -------------------------------------------------------------
+#
+# '''extract data with alarms in alm_list'''
+# # data with alarms that occurs 50 times more in the dataset (OOS not included)
+# real_alarms = data[data['ALARM'].isin(alm_list)]
+# data = data.drop(real_alarms.index)
+# real_alarm_labels = real_alarms[['ALARM']]
+# real_alarms = real_alarms.drop(['ALARM'], axis=1)
+#
+# # OOS/IS-ANR data
+# fake_normal = data[data['ALARM'] == 'Malfunction']
+# data = data.drop(fake_normal.index)
+# fake_normal_labels = fake_normal[['ALARM']]
+# fake_normal = fake_normal.drop(['ALARM'], axis=1)
+#
+# # Normal data
+# real_normal = data[data['ALARM'] == 'Normal']
+# del data
+# real_normal_labels = real_normal[['ALARM']]
+# real_normal = real_normal.drop(['ALARM'], axis=1)
+#
+# file_path = 'origindata'
+#
+# # -------------------------------------------------------------
+#
+# '''save the scaler'''
+# np.save('../data/scaler', scaler)
+#
+# '''save file'''
+# np.save('../data/%s/real_alarm_x.npy' % file_path, real_alarms)
+# np.save('../data/%s/real_alarm_y.npy' % file_path, real_alarm_labels)
+# np.save('../data/%s/fake_normal_x.npy' % file_path, fake_normal)
+# np.save('../data/%s/fake_normal_y.npy' % file_path, fake_normal_labels)
+# np.save('../data/%s/real_normal_x.npy' % file_path, real_normal)
+# np.save('../data/%s/real_normal_y.npy' % file_path, real_normal_labels)
