@@ -1,0 +1,65 @@
+We observed that the Europe (EU) data and Tokyo (TK) data is not exactly the same, they share some PM values but have some different PM values.
+
+The EU and TK data share 28 PM values, they are:
+
+['OPOUTMAX-OTS_OPOUTMIN-OTS_-',
+ 'OPRMAX-OTS_OPRMIN-OTS_-',
+ 'ES-OTU',
+ 'OPRMAX-OCH_OPRMIN-OCH_-',
+ 'ES-S',
+ 'OPOUTAVG-OTS_OPINAVG-OTS_-',
+ 'ORLAVG-OTS',
+ 'RS-BBE',
+ 'ORLMIN-OTS',
+ 'OPTMAX-OCH_OPTMIN-OCH_-',
+ 'CV-S',
+ 'OPRAVG-OTS',
+ 'S-CV',
+ 'OPTAVG-OCH',
+ 'DROPGAINAVG-OTS',
+ 'QSTDEV-OTU',
+ 'ES-RS',
+ 'OPTMAX-OTS_OPTMIN-OTS_-',
+ 'RS-ES',
+ 'OPINMAX-OTS_OPINMIN-OTS_-',
+ 'DROPGAINMAX-OTS_DROPGAINMIN-OTS_-',
+ 'OPTAVG-OTS',
+ 'OPOUTAVG-OTS',
+ 'CV-OTU',
+ 'OPRAVG-OCH',
+ 'OPINAVG-OTS',
+ 'QAVG-OTU',
+ 'BBE-RS']
+
+ 17 PM values that only appears in EU data:
+
+['S-ES',
+ 'OTU-ES',
+ 'OCH-OPRMAX_OCH-OPRMIN_-',
+ 'PCS-ES',
+ 'OTU-QSTDEV',
+ 'E-CV',
+ 'OCH-OPRAVG',
+ 'E-UAS',
+ 'E-OUTFRAMESERR_E-OUTFRAMES_/',
+ 'E-ES',
+ 'PCS-UAS',
+ 'OCH-SPANLOSSAVG',
+ 'OTU-QAVG',
+ 'E-INFRAMESERR_E-INFRAMES_/',
+ 'PCS-CV',
+ 'OTU-CV',
+ 'OCH-SPANLOSSMAX_OCH-SPANLOSSMIN_-']
+
+ 10 PM values that only appears in TK data:
+
+['CV-E',
+ 'CV-PCS',
+ 'INFRAMESERR-E_INFRAMES-E_/',
+ 'ES-PCS',
+ 'UAS-PCS',
+ 'SPANLOSSMAX-OCH_SPANLOSSMIN-OCH_-',
+ 'UAS-E',
+ 'ES-E',
+ 'OUTFRAMESERR-E_OUTFRAMES-E_/',
+ 'SPANLOSSAVG-OCH']
