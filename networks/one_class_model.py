@@ -2,7 +2,9 @@ from keras import Model
 from keras.layers import Input, Dense
 from keras import Model
 from sklearn.externals import joblib
+import pandas as pd
 import numpy as np
+
 '''global variance'''
 file_path = 'origindata'
 
@@ -77,30 +79,53 @@ y_test_bi = y_test_bi.reshape([-1, 1])
 y_test_all = labelencoder.transform(y_test_all).reshape([-1, 1])
 label = labelencoder.classes_.tolist()
 
-'''predict'''
-y_pred_all, y_pred_bi = model.predict([x_test, x_test])
-y_pred_all = np.argmax(y_pred_all, axis=1).reshape([-1, 1])
-y_pred_bi = np.argmax(y_pred_bi, axis=1).reshape([-1, 1])
-'''Assessment'''
-from sklearn.metrics import confusion_matrix, classification_report
-from sklearn.metrics import accuracy_score
+# '''predict'''
+# y_pred_all, y_pred_bi = model.predict([x_test, x_test])
+# y_pred_all = np.argmax(y_pred_all, axis=1).reshape([-1, 1])
+# y_pred_bi = np.argmax(y_pred_bi, axis=1).reshape([-1, 1])
+# '''Assessment'''
+# from sklearn.metrics import confusion_matrix, classification_report
+# from sklearn.metrics import accuracy_score
+#
+# print(classification_report(y_true=y_test_all, y_pred=y_pred_all))
+# cm = confusion_matrix(y_true=y_test_all, y_pred=y_pred_all)
+# acc = accuracy_score(y_true=y_test_all, y_pred=y_pred_all)
+# '''Visualization'''
+# import seaborn as sns
+# import matplotlib.pyplot as plt
+#
+# from toolPackage.draw_cm import cm_analysis
+#
+# cm_analysis(cm, label, precision=True)
+#
+# '''for binary'''
+# print(classification_report(y_true=y_test_bi, y_pred=y_pred_bi))
+# cm2 = confusion_matrix(y_true=y_test_bi, y_pred=y_pred_bi)
+# acc2 = accuracy_score(y_true=y_test_bi, y_pred=y_pred_bi)
+#
+# cm_analysis(cm2, ['normal', 'malfunction'], x_rotation=0, font_size=0.5, precision=False)
 
-print(classification_report(y_true=y_test_all, y_pred=y_pred_all))
-cm = confusion_matrix(y_true=y_test_all, y_pred=y_pred_all)
-acc = accuracy_score(y_true=y_test_all, y_pred=y_pred_all)
-'''Visualization'''
-import seaborn as sns
-import matplotlib.pyplot as plt
+'''overlaps'''
 
+def fp_index_list(file_path):
+    '''load testset and encoders'''
+    x_test = np.load('../data/%s/test_x.npy' % file_path)
+    y_test_bi = np.load('../data/%s/test_y_bi.npy' % file_path)
 
-from toolPackage.draw_cm import cm_analysis
+    y_test_bi = y_test_bi.reshape([-1, 1])
+    model = load_model('../models/%s/oneclassmodel' % file_path)
+    _, y_pred_bi = model.predict([x_test, x_test])
+    y_pred_bi = np.argmax(y_pred_bi, axis=1).reshape([-1, 1])
+    y_real = pd.DataFrame(np.load('../data/%s/test_y_all.npy' % file_path))
+    list = []
+    for a, b, c in zip(y_real.index, y_pred_bi, y_test_bi):
+        if ((b == 1) and (c == 0)):
+            list.append(a)
+    return list
 
-cm_analysis(cm, label, precision=True)
+pre = fp_index_list('preconcat')
+aft = fp_index_list('aftconcat')
+ori = fp_index_list('origindata')
 
-'''for binary'''
-print(classification_report(y_true=y_test_bi, y_pred=y_pred_bi))
-cm2 = confusion_matrix(y_true=y_test_bi, y_pred=y_pred_bi)
-acc2 = accuracy_score(y_true=y_test_bi, y_pred=y_pred_bi)
-
-cm_analysis(cm2, ['normal', 'malfunction'], x_rotation=0, font_size=0.5, precision=False)
-
+pre_aft = list(set(pre).intersection(aft))
+aft_ori = list(set(aft).intersection(ori))
