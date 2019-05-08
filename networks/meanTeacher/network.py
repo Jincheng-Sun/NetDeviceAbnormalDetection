@@ -10,7 +10,12 @@ def bottleneck(inputs, depth, depth_bottleneck, stride, rate=1,
                outputs_collections=None, scope=None):
   with tf.variable_scope(scope, 'bottleneck', [inputs]) as sc:
     depth_in = utils.last_dimension(inputs.get_shape(), min_rank=3)
-    preact = slim.batch_norm(inputs, activation_fn=tf.nn.relu, scope='preact')
+    # preact = slim.batch_norm(inputs, activation_fn=tf.nn.relu, scope='preact',trainable=True,)
+    preact = tf.keras.layers.BatchNormalization()(inputs)
+    preact = tf.nn.relu(preact)
+    # preact = tf.nn.batch_normalization(inputs,scope = 'batch_norm',training =True)
+    # preact = tf.nn.relu(preact,name='act')
+
     if depth == depth_in:
       shortcut = subsample(inputs, stride, 'shortcut')
     else:
@@ -65,7 +70,9 @@ def resnet(inputs,
         # This is needed because the pre-activation variant does not have batch
         # normalization or activation functions in the residual unit output. See
         # Appendix of [2].
-        net = slim.batch_norm(net, activation_fn=tf.nn.relu, scope='postnorm')
+        # net = slim.batch_norm(net, activation_fn=tf.nn.relu, scope='postnorm')
+        net = tf.keras.layers.BatchNormalization()(net)
+        net = tf.nn.relu(net)
         # Convert end_points_collection into a dictionary of end_points.
         end_points = utils.convert_collection_to_dict(
             end_points_collection)
@@ -141,17 +148,15 @@ def fully_connected(inputs, num_outputs,
             x_init = tf.matmul(inputs, V_norm)
             m_init, v_init = tf.nn.moments(x_init, [0])
             scale_init = init_scale / tf.sqrt(v_init + 1e-10)
-            g = tf.get_variable('g', dtype=tf.float32,
-                                initializer=scale_init, trainable=True)
             b = tf.get_variable('b', dtype=tf.float32,
-                                initializer=tf.zeros_like(m_init), trainable=True)
+                                initializer=tf.zeros_like(scale_init), trainable=True)
             x_init = tf.reshape(
                 scale_init, [1, num_outputs]) * (x_init - tf.reshape(m_init, [1, num_outputs]))
             if activation_fn is not None:
                 x_init = activation_fn(x_init)
             return x_init
         else:
-            V, g, b = [tf.get_variable(var_name) for var_name in ['V', 'g', 'b']]
+            V, b = [tf.get_variable(var_name) for var_name in ['V', 'b']]
 
             # use weight normalization (Salimans & Kingma, 2016)
             inputs = tf.matmul(inputs, V)
@@ -181,9 +186,7 @@ def fully_connected(inputs, num_outputs,
             tf.add_to_collection(tf.GraphKeys.UPDATE_OPS, eval_mean_update)
             mean = tf.cond(is_training, lambda: training_mean, lambda: eval_mean)
             inputs = inputs - mean
-            scaler = g / tf.sqrt(tf.reduce_sum(tf.square(V), [0]))
-            inputs = tf.reshape(scaler, [1, num_outputs]) * \
-                inputs + tf.reshape(b, [1, num_outputs])
+            inputs = inputs + tf.reshape(b, [1, num_outputs])
 
             # apply nonlinearity
             if activation_fn is not None:

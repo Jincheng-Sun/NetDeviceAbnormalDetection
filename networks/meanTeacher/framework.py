@@ -73,17 +73,21 @@ def ema_variable_scope(name_scope_name, var_scope, decay=0.999):
     other types of variables, but the assumed use case is for trainable variables.
     """
     with tf.name_scope(name_scope_name + "/ema_variables"):
+        trainable_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=var_scope.name)
         original_trainable_vars = {
             tensor.op.name: tensor
             for tensor
-            in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=var_scope.name)
+            in trainable_vars
         }
         ema = tf.train.ExponentialMovingAverage(decay)
-        update_op = ema.apply(original_trainable_vars.values())
+        update_op = ema.apply(trainable_vars)
         tf.add_to_collection(tf.GraphKeys.UPDATE_OPS, update_op)
+        # update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+        # update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS,scope=name_scope_name + "/ema_variables")
 
     def use_ema_variables(getter, name, *_, **__):
         #pylint: disable=unused-argument
+
         assert name in original_trainable_vars, "Unknown variable {}.".format(name)
         return ema.average(original_trainable_vars[name])
 
