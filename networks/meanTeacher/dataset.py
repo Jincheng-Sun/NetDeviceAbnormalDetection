@@ -22,7 +22,7 @@ class EuTk:
         labeled = array[array['y']!=-1]
         unlabeled = array[array['y']==-1]
         lb_train,self.evaluation = train_test_split(labeled,test_size=0.2,random_state=42)
-        self.training = pd.concat([lb_train, unlabeled])
+        self.training = np.concatenate([lb_train, unlabeled],axis=0)
 
 
 
