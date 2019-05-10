@@ -7,8 +7,9 @@ from tensorflow.contrib.metrics import streaming_mean
 from networks.meanTeacher.network import resnet_1, fully_connected
 from networks.meanTeacher.framework import ema_variable_scope, name_variable_scope, assert_shape, HyperparamVariables
 from networks.meanTeacher.string_utils import *
-
-LOG = logging.getLogger('main')
+logging.basicConfig(level=logging.INFO, filename= 'train_log',filemode='a')
+LOG = logging.getLogger('train_log')
+LOG.setLevel(logging.INFO)
 
 
 class Model:
@@ -263,11 +264,23 @@ class Model:
         writer = tf.summary.FileWriter(self.tensorboard_path)
         writer.add_graph(self.session.graph)
         return writer.get_logdir()
+
+    def restore_checkpoint(self, number):
+        self.saver.restore(self.session, self.checkpoint_path+'-%s'%str(number))
+
+    def test(self,test_x,test_y):
+        class_logits_1, class_logits_2, class_logits_ema = self.session.run(
+            [self.class_logits_1, self.class_logits_2, self.class_logits_ema],
+            feed_dict = {self.features: test_x, self.labels:test_y, self.is_training: False},
+        )
+        return class_logits_1, class_logits_2, class_logits_ema
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 Hyperparam = namedtuple("Hyperparam", ['tensor', 'getter', 'setter'])
 
 def adam_optimizer(cost, global_step,
-                   learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8,
+                   learning_rate=0.001, beta1=0.9, beta2=0.99, epsilon=1e-8,
                    name=None):
     with tf.name_scope(name, "adam_optimizer") as scope:
         optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate,
