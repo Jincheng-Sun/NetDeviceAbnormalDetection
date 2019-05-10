@@ -3,6 +3,10 @@ import numpy as np
 import pandas as pd
 import seaborn as sb
 import math
+from sklearn.metrics import confusion_matrix
+
+def cm_metrix(y_test, y_pred):
+    return confusion_matrix(y_true=y_test, y_pred=y_pred)
 
 def cm_analysis(cm, labels, x_rotation=90, y_rotation=0, font_size=0.33, precision=False):
     plt.rcParams['savefig.dpi'] = 300  # 图片像素
