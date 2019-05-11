@@ -7,8 +7,9 @@ from tensorflow.contrib.metrics import streaming_mean
 from networks.meanTeacher.network import resnet_1, fully_connected
 from networks.meanTeacher.framework import ema_variable_scope, name_variable_scope, assert_shape, HyperparamVariables
 from networks.meanTeacher.string_utils import *
-
-LOG = logging.getLogger('main')
+logging.basicConfig(level=logging.INFO, filename= 'train_log',filemode='a')
+LOG = logging.getLogger('train_log')
+LOG.setLevel(logging.INFO)
 
 
 class Model:
@@ -178,6 +179,10 @@ class Model:
             "train/total_cost/pi": self.mean_total_cost_pi,
             "train/total_cost/mt": self.mean_total_cost_mt,
         }
+        '''monitor values on tensorboard'''
+        for k,v in self.training_metrics.items():
+            tf.summary.scalar(k,v)
+
         with tf.variable_scope("validation_metrics") as metrics_scope:
             self.metric_values, self.metric_update_ops = metrics.aggregate_metric_map({
                 "eval/error/1": streaming_mean(self.errors_1),
@@ -204,7 +209,7 @@ class Model:
             self.init_init_op = tf.variables_initializer(init_init_variables)
             self.train_init_op = tf.variables_initializer(train_init_variables)
 
-        self.saver = tf.train.Saver()
+        self.saver = tf.train.Saver(max_to_keep=10)
         self.session = tf.Session()
         self.run(self.init_init_op)
 
@@ -215,22 +220,29 @@ class Model:
         return self.hyper.get(self.session, key)
 
     def train(self, training_batches, evaluation_batches_fn):
+        self.best_loss = 1
+        self.patience = 0
         self.run(self.train_init_op, self.feed_dict(next(training_batches)))
         LOG.info("Model variables initialized")
         self.evaluate(evaluation_batches_fn)
         self.save_checkpoint()
+        merged = tf.summary.merge_all()
         for batch in training_batches:
-            results, _ = self.run([self.training_metrics, self.train_step_op],
+            merge, i, results, _ = self.run([merged,self.global_step, self.training_metrics, self.train_step_op],
                                   self.feed_dict(batch))
+            self.writer.add_summary(merge, i)
             step_control = self.get_training_control()
             if step_control['time_to_print']:
                 LOG.info("step %5d:   %s", step_control['step'], self.result_formatter.format_dict(results))
             if step_control['time_to_stop']:
                 break
             if step_control['time_to_evaluate']:
-                self.evaluate(evaluation_batches_fn)
+                if_stop = self.evaluate(evaluation_batches_fn)
                 self.save_checkpoint()
-        self.evaluate(evaluation_batches_fn)
+                if if_stop:
+                    LOG.info('Stop Training')
+                    break
+        _ = self.evaluate(evaluation_batches_fn)
         self.save_checkpoint()
 
     def evaluate(self, evaluation_batches_fn):
@@ -240,7 +252,23 @@ class Model:
                      feed_dict=self.feed_dict(batch, is_training=False))
         step = self.run(self.global_step)
         results = self.run(self.metric_values)
+        '''early stoping'''
+        loss = results["eval/error/1"]
+        if loss <= self.best_loss:
+            self.best_loss = loss
+            self.patience = 0
+        else:
+            self.patience += 1
+
+        if self.patience == 8:
+            stop_training = True
+        else:
+            stop_training = False
+
         LOG.info("step %5d:   %s", step, self.result_formatter.format_dict(results))
+
+        return stop_training
+
 
     def get_training_control(self):
         return self.session.run(self.training_control)
@@ -260,14 +288,27 @@ class Model:
         LOG.info("Saved checkpoint: %r", path)
 
     def save_tensorboard_graph(self):
-        writer = tf.summary.FileWriter(self.tensorboard_path)
-        writer.add_graph(self.session.graph)
-        return writer.get_logdir()
+        self.writer = tf.summary.FileWriter(self.tensorboard_path)
+        self.writer.add_graph(self.session.graph)
+        return self.writer.get_logdir()
+
+    def restore_checkpoint(self, number):
+        self.saver.restore(self.session, self.checkpoint_path+'-%s'%str(number))
+
+    def test(self,test_x,test_y):
+        class_logits_1, class_logits_2, class_logits_ema = self.session.run(
+            [self.class_logits_1, self.class_logits_2, self.class_logits_ema],
+            feed_dict = {self.features: test_x, self.labels:test_y, self.is_training: False},
+        )
+        return class_logits_1, class_logits_2, class_logits_ema
+
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 Hyperparam = namedtuple("Hyperparam", ['tensor', 'getter', 'setter'])
 
 def adam_optimizer(cost, global_step,
-                   learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8,
+                   learning_rate=0.001, beta1=0.9, beta2=0.99, epsilon=1e-8,
                    name=None):
     with tf.name_scope(name, "adam_optimizer") as scope:
         optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate,
