@@ -87,7 +87,7 @@ unlabeled = data[data['ALARM'] == -1]
 from keras.models import load_model
 
 encoder_name = 'enlarge_s'
-encoder = load_model('../models/preconcat/encoder_%s' % encoder_name)
+encoder = load_model('../models/encoder_%s' % encoder_name)
 
 lbEncoder = joblib.load('../models/LE_GBK')
 ohEncoder = joblib.load('../models/OH_GBK')

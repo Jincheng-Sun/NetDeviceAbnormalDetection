@@ -1,7 +1,7 @@
 #filepath
 data/
 models/
-
+networks/meanTeacher/log/
 #ide files
 .idea/
 .DS_Store

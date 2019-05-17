@@ -192,3 +192,11 @@ def fully_connected(inputs, num_outputs,
             if activation_fn is not None:
                 inputs = activation_fn(inputs)
             return inputs
+
+@slim.add_arg_scope
+def gussian_noise(inputs, scale, is_training, name = None):
+    with tf.name_scope(name, 'gussian_noise', [inputs,scale,is_training]) as scope:
+        def do_add():
+            noise = tf.random_normal(tf.shape[inputs])
+            return inputs + noise * scale
+        return tf.cond(is_training, do_add(), lambda: inputs, name=scope)

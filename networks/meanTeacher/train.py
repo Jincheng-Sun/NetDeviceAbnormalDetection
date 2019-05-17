@@ -5,8 +5,8 @@ import numpy as np
 
 model = Model()
 model['rampdown_length'] = 0
-model['rampup_length'] = 5000
-model['training_length'] = 20000
+model['rampup_length'] = 10000
+model['training_length'] = 80000
 model['max_consistency_cost'] = 50.0
 
 tensorboard_dir = model.save_tensorboard_graph()
@@ -17,13 +17,13 @@ training_batches = minibatching.training_batches(eutk.training, n_labeled_per_ba
 evaluation_batches_fn = minibatching.evaluation_epoch_generator(eutk.evaluation)
 
 # model.train(training_batches, evaluation_batches_fn)
-
+#
 from toolPackage.draw_cm import cm_metrix, cm_analysis
 from sklearn.externals import joblib
 from sklearn.metrics import accuracy_score,classification_report
 test_x = eutk.evaluation['x']
 test_y = eutk.evaluation['y']
-model.restore_checkpoint(6500)
+model.restore_checkpoint(24000)
 result1,result2,result3 = model.test(test_x,test_y)
 result = np.argmax(result1,axis=1)
 result = result.reshape([-1,1])
