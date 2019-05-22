@@ -53,7 +53,7 @@ class Model:
 
         # Output schedule
         'print_span': 20,
-        'evaluation_span': 500,
+        'evaluation_span': 100,
     }
 
     def __init__(self):
@@ -61,7 +61,7 @@ class Model:
         self.checkpoint_path = '../../models/mean_teacher'
         self.tensorboard_path = 'log/'
         with tf.name_scope('placeholders'):
-            self.features = tf.placeholder(dtype=tf.float32, shape=(None, 86, 1))
+            self.features = tf.placeholder(dtype=tf.float32, shape=(None, 86, 1), name='features')
             self.labels = tf.placeholder(dtype=tf.int32, shape=(None,), name='labels')
             self.is_training = tf.placeholder(dtype=tf.bool, shape=(), name='is_training')
 
@@ -108,6 +108,7 @@ class Model:
             translate=self.hyper['translate'],
             num_logits=self.hyper['num_logits'])
 
+        self.output = tf.multiply(self.class_logits_1,1,name='output')
         with tf.name_scope("objectives"):
             self.mean_error_1, self.errors_1 = errors(self.class_logits_1, self.labels)
             self.mean_error_ema, self.errors_ema = errors(self.class_logits_ema, self.labels)
@@ -253,7 +254,7 @@ class Model:
         step = self.run(self.global_step)
         results = self.run(self.metric_values)
         '''early stoping'''
-        loss = results["eval/error/1"]
+        loss = results['eval/class_cost/1']
         if loss <= self.best_loss:
             self.best_loss = loss
             self.patience = 0
@@ -387,7 +388,7 @@ def tower(inputs,
           num_logits,
           is_initialization=False,
           name=None):
-    num_classes = 14
+    num_classes = 2
     with tf.name_scope(name, "tower"):
         training_args = dict(
             is_training=is_training
@@ -461,7 +462,7 @@ def consistency_costs(logits1, logits2, cons_coefficient, mask, consistency_trus
 
 
     with tf.name_scope(name, "consistency_costs") as scope:
-        num_classes = 14
+        num_classes = 2
         assert_shape(logits1, [None, num_classes])
         assert_shape(logits2, [None, num_classes])
         assert_shape(cons_coefficient, [])

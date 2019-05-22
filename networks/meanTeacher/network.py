@@ -131,7 +131,7 @@ def resnet_1(inputs,
 
 @slim.add_arg_scope
 def fully_connected(inputs, num_outputs,
-                    activation_fn=None, init_scale=1., init=False,
+                    activation_fn=tf.nn.softmax, init_scale=1., init=False,
                     eval_mean_ema_decay=0.999, is_training=None, scope=None):
     #pylint: disable=invalid-name
     with tf.variable_scope(scope, "fully_connected"):
