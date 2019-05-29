@@ -9,6 +9,9 @@ from sklearn.model_selection import train_test_split
 from keras.callbacks import EarlyStopping
 from imblearn.over_sampling import RandomOverSampler
 from keras.optimizers import Adam
+from keras.models import load_model
+
+
 def bn_relu(layer, dropout=0, **params):
     layer = BatchNormalization()(layer)
     layer = Activation(params['conv_activation'])(layer)
@@ -64,19 +67,19 @@ def resnet_block(layer, filters, kernels, dropout, activation,
 
 '''global variant'''
 
-ecd = 'None'
+ecd = 'enlarge_s'
 '''load dataset'''
-train_x = np.load('../data/new/%s_train_x_bi.npy' % ecd)
-train_y = pd.DataFrame(np.load('../data/new/%s_train_y_bi.npy' % ecd))
-# train_y = np.load('../data/new/%s_train_y_all.npy' % ecd)
+train_x = np.load('../data/new/%s_train_x_all.npy' % ecd)
+# train_y = pd.DataFrame(np.load('../data/new/%s_train_y_bi.npy' % ecd))
+train_y = np.load('../data/new/%s_train_y_all.npy' % ecd)
 le_encoder = joblib.load('../models/LE_ALM')
 label = le_encoder.classes_
 
 '''split dataset'''
-shape = 56
+shape = 86
 train_x, test_x, train_y, test_y = train_test_split(train_x, train_y, test_size=0.2, random_state=42)
 
-train_y = pd.get_dummies(train_y.iloc[:, 0])
+# train_y = pd.get_dummies(train_y.iloc[:, 0])
 # train_y2 = np.reshape(train_y,[-1,1,14])
 # train_y = np.reshape(train_y.values,[-1,1,2])
 
@@ -131,13 +134,14 @@ model.fit(train_x, train_y,
 
 model.save('../models/newmodels/model_%s_bi' % ecd)
 
+model = load_model('../models/newmodels/model_enlarge_s_all')
 '''validation'''
 # test
 # abnormal    4653
 # normal    4574
 y_pred = model.predict(test_x)
 y_pred = np.argmax(y_pred, axis=1).reshape([-1, 1])
-y_test = test_y.values
+y_test = np.argmax(test_y, axis=1)
 
 '''Assessment'''
 
@@ -152,5 +156,5 @@ acc = accuracy_score(y_true=y_test, y_pred=y_pred)
 
 from toolPackage.draw_cm import cm_analysis
 
-cm_analysis(cm, ['Normal', 'Malfunction'], precision=True)
-# cm_analysis(cm, label, precision=False,x_rotation=90)
+# cm_analysis(cm, ['Normal', 'Malfunction'], precision=True)
+cm_analysis(cm, label, precision=False, x_rotation=90)
