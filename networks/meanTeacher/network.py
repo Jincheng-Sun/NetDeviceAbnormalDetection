@@ -19,15 +19,15 @@ def bottleneck(inputs, depth, depth_bottleneck, stride, rate=1,
     if depth == depth_in:
       shortcut = subsample(inputs, stride, 'shortcut')
     else:
-      shortcut = slim.conv1d(preact, depth, 1, stride=stride,
+      shortcut = slim.conv2d(preact, depth, 1, stride=stride,
                              normalizer_fn=None, activation_fn=None,
                              scope='shortcut')
 
-    residual = slim.conv1d(preact, depth_bottleneck, 1, stride=1,
+    residual = slim.conv2d(preact, depth_bottleneck, 1, stride=1,
                            scope='conv1')
-    residual = slim.conv1d(residual, depth_bottleneck, 3, stride=stride, padding='SAME', scope='conv2')
+    residual = slim.conv2d(residual, depth_bottleneck, 3, stride=stride, padding='SAME', scope='conv2')
     # residual = subsample(residual, factor=stride)
-    residual = slim.conv1d(residual, depth, 1, stride=1,
+    residual = slim.conv2d(residual, depth, 1, stride=1,
                            normalizer_fn=None, activation_fn=None,
                            scope='conv3')
 
@@ -50,7 +50,7 @@ def resnet(inputs,
               scope=None):
   with tf.variable_scope(scope, 'resnet', [inputs], reuse=reuse) as sc:
     end_points_collection = sc.original_name_scope + '_end_points'
-    with slim.arg_scope([slim.conv1d, bottleneck,
+    with slim.arg_scope([slim.conv2d, bottleneck,
                          stack_blocks_dense],
                         outputs_collections=end_points_collection):
       with slim.arg_scope([slim.batch_norm], is_training=is_training):
@@ -63,9 +63,9 @@ def resnet(inputs,
           # We do not include batch normalization or activation functions in
           # conv1 because the first ResNet unit will perform these. Cf.
           # Appendix of [2].
-          with slim.arg_scope([slim.conv1d],
+          with slim.arg_scope([slim.conv2d],
                               activation_fn=None, normalizer_fn=None):
-            net = slim.conv1d(net, 32, 7, stride=1, scope='conv1')
+            net = slim.conv2d(net, 32, 7, stride=1, scope='conv1')
         net = stack_blocks_dense(net, blocks, output_stride)
         # This is needed because the pre-activation variant does not have batch
         # normalization or activation functions in the residual unit output. See
@@ -131,7 +131,7 @@ def resnet_1(inputs,
 
 @slim.add_arg_scope
 def fully_connected(inputs, num_outputs,
-                    activation_fn=None, init_scale=1., init=False,
+                    activation_fn=tf.nn.softmax, init_scale=1., init=False,
                     eval_mean_ema_decay=0.999, is_training=None, scope=None):
     #pylint: disable=invalid-name
     with tf.variable_scope(scope, "fully_connected"):
@@ -192,3 +192,11 @@ def fully_connected(inputs, num_outputs,
             if activation_fn is not None:
                 inputs = activation_fn(inputs)
             return inputs
+
+@slim.add_arg_scope
+def gussian_noise(inputs, scale, is_training, name = None):
+    with tf.name_scope(name, 'gussian_noise', [inputs,scale,is_training]) as scope:
+        def do_add():
+            noise = tf.random_normal(tf.shape[inputs])
+            return inputs + noise * scale
+        return tf.cond(is_training, do_add(), lambda: inputs, name=scope)

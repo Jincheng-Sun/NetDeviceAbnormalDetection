@@ -4,7 +4,7 @@ from collections import namedtuple
 import tensorflow as tf
 from tensorflow.contrib import metrics, slim
 from tensorflow.contrib.metrics import streaming_mean
-from networks.meanTeacher.network import resnet_1, fully_connected
+from networks.meanTeacher.network import resnet_1, fully_connected, gussian_noise
 from networks.meanTeacher.framework import ema_variable_scope, name_variable_scope, assert_shape, HyperparamVariables
 from networks.meanTeacher.string_utils import *
 logging.basicConfig(level=logging.INFO, filename= 'train_log',filemode='a')
@@ -26,7 +26,7 @@ class Model:
         'logit_distance_cost': 0.0,  # Matters only with 2 outputs
 
         # Optimizer hyperparameters
-        'max_learning_rate': 0.003,
+        'max_learning_rate': 0.001,
         'adam_beta_1_before_rampdown': 0.9,
         'adam_beta_1_after_rampdown': 0.5,
         'adam_beta_2_during_rampup': 0.99,
@@ -34,7 +34,7 @@ class Model:
         'adam_epsilon': 1e-8,
 
         # Architecture hyperparameters
-        'input_noise': 0.15,
+        'input_noise': 0.01,
         'student_dropout_probability': 0.5,
         'teacher_dropout_probability': 0.5,
 
@@ -53,7 +53,7 @@ class Model:
 
         # Output schedule
         'print_span': 20,
-        'evaluation_span': 500,
+        'evaluation_span': 100,
     }
 
     def __init__(self):
@@ -61,7 +61,7 @@ class Model:
         self.checkpoint_path = '../../models/mean_teacher'
         self.tensorboard_path = 'log/'
         with tf.name_scope('placeholders'):
-            self.features = tf.placeholder(dtype=tf.float32, shape=(None, 86, 1))
+            self.features = tf.placeholder(dtype=tf.float32, shape=(None,3, 86, 1), name='features')
             self.labels = tf.placeholder(dtype=tf.int32, shape=(None,), name='labels')
             self.is_training = tf.placeholder(dtype=tf.bool, shape=(), name='is_training')
 
@@ -108,6 +108,7 @@ class Model:
             translate=self.hyper['translate'],
             num_logits=self.hyper['num_logits'])
 
+        self.output = tf.multiply(self.class_logits_1,1,name='output')
         with tf.name_scope("objectives"):
             self.mean_error_1, self.errors_1 = errors(self.class_logits_1, self.labels)
             self.mean_error_ema, self.errors_ema = errors(self.class_logits_ema, self.labels)
@@ -209,7 +210,7 @@ class Model:
             self.init_init_op = tf.variables_initializer(init_init_variables)
             self.train_init_op = tf.variables_initializer(train_init_variables)
 
-        self.saver = tf.train.Saver(max_to_keep=10)
+        self.saver = tf.train.Saver(max_to_keep=21)
         self.session = tf.Session()
         self.run(self.init_init_op)
 
@@ -253,14 +254,14 @@ class Model:
         step = self.run(self.global_step)
         results = self.run(self.metric_values)
         '''early stoping'''
-        loss = results["eval/error/1"]
+        loss = results['eval/class_cost/1']
         if loss <= self.best_loss:
             self.best_loss = loss
             self.patience = 0
         else:
             self.patience += 1
 
-        if self.patience == 8:
+        if self.patience == 20:
             stop_training = True
         else:
             stop_training = False
@@ -387,11 +388,12 @@ def tower(inputs,
           num_logits,
           is_initialization=False,
           name=None):
-    num_classes = 14
+    num_classes = 2
     with tf.name_scope(name, "tower"):
         training_args = dict(
             is_training=is_training
         )
+        # net = gussian_noise(inputs, scale = input_noise, is_training= is_training, name = 'gussian_noise')
         net = resnet_1(inputs = inputs,is_training= is_training)
         net = slim.flatten(net)
         primary_logits = fully_connected(net, num_classes, init=is_initialization)
@@ -460,7 +462,7 @@ def consistency_costs(logits1, logits2, cons_coefficient, mask, consistency_trus
 
 
     with tf.name_scope(name, "consistency_costs") as scope:
-        num_classes = 14
+        num_classes = 2
         assert_shape(logits1, [None, num_classes])
         assert_shape(logits2, [None, num_classes])
         assert_shape(cons_coefficient, [])
