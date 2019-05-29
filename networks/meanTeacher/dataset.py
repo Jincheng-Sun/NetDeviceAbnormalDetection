@@ -19,6 +19,7 @@ class EuTk:
         ])
         array['x'] = train_x
         array['y'] = train_y
+
         labeled = array[array['y']!=-1]
         unlabeled = array[array['y']==-1]
         lb_train,self.evaluation = train_test_split(labeled,test_size=0.2,random_state=42)
