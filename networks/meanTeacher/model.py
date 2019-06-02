@@ -210,9 +210,21 @@ class Model:
             self.init_init_op = tf.variables_initializer(init_init_variables)
             self.train_init_op = tf.variables_initializer(train_init_variables)
 
-        self.saver = tf.train.Saver(max_to_keep=21)
+        self.saver = tf.train.Saver(max_to_keep=11)
         self.session = tf.Session()
         self.run(self.init_init_op)
+
+        total_parameters = 0
+        for variable in tf.trainable_variables():
+            print(variable)
+            shape = variable.get_shape()
+            variable_parameters = 1
+            for dim in shape:
+                variable_parameters *= dim.value
+            print(variable_parameters)
+            total_parameters += variable_parameters
+            print(total_parameters)
+
 
     def __setitem__(self, key, value):
         self.hyper.assign(self.session, key, value)
@@ -255,13 +267,13 @@ class Model:
         results = self.run(self.metric_values)
         '''early stoping'''
         loss = results['eval/class_cost/1']
-        if loss <= self.best_loss:
+        if loss < self.best_loss:
             self.best_loss = loss
             self.patience = 0
         else:
             self.patience += 1
 
-        if self.patience == 20:
+        if self.patience == 10:
             stop_training = True
         else:
             stop_training = False
@@ -375,7 +387,7 @@ def inference(inputs, is_training, ema_decay, input_noise, student_dropout_proba
     with name_variable_scope("secondary", var_scope, reuse=True) as (name_scope, _):
         class_logits_2, cons_logits_2 = tower(**tower_args, dropout_probability=teacher_dropout_probability, name=name_scope)
     with ema_variable_scope("ema", var_scope, decay=ema_decay):
-        class_logits_ema, cons_logits_ema = tower(**tower_args, dropout_probability=teacher_dropout_probability, name=name_scope)
+        class_logits_ema, cons_logits_ema = tower(**tower_args, dropout_probability=teacher_dropout_probability, name='ema')
         class_logits_ema, cons_logits_ema = tf.stop_gradient(class_logits_ema), tf.stop_gradient(cons_logits_ema)
     return (class_logits_1, cons_logits_1), (class_logits_2, cons_logits_2), (class_logits_ema, cons_logits_ema)
 

@@ -1,0 +1,182 @@
+WARNING:tensorflow:From /home/oem/Projects/NetDeviceAbnormalDetection/networks/meanTeacher/network.py:82: calling reduce_mean (from tensorflow.python.ops.math_ops) with keep_dims is deprecated and will be removed in a future version.
+Instructions for updating:
+keep_dims is deprecated, use keepdims instead
+WARNING:tensorflow:From /home/oem/Projects/NetDeviceAbnormalDetection/networks/meanTeacher/model.py:491: softmax_cross_entropy_with_logits (from tensorflow.python.ops.nn_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+
+Future major versions of TensorFlow will allow gradients to flow
+into the labels input on backprop by default.
+
+See `tf.nn.softmax_cross_entropy_with_logits_v2`.
+
+WARNING:tensorflow:From /home/oem/Projects/NetDeviceAbnormalDetection/networks/meanTeacher/model.py:189: streaming_mean (from tensorflow.contrib.metrics.python.ops.metric_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Please switch to tf.metrics.mean
+INFO:train_log:Model variables initialized
+INFO:train_log:step     0:   eval/error/ema:  75.0%,  eval/error/1:  75.0%,  eval/class_cost/1:   0.693343
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-0'
+INFO:train_log:step    20:   train/error/1:  26.0%,  train/class_cost/1:   0.345093,  train/cons_cost/mt:   0.000002
+INFO:train_log:step    40:   train/error/1:  24.0%,  train/class_cost/1:   0.344164,  train/cons_cost/mt:   0.000005
+INFO:train_log:step    60:   train/error/1:  22.0%,  train/class_cost/1:   0.343433,  train/cons_cost/mt:   0.000008
+INFO:train_log:step    80:   train/error/1:  20.0%,  train/class_cost/1:   0.341919,  train/cons_cost/mt:   0.000013
+INFO:train_log:step   100:   train/error/1:  26.0%,  train/class_cost/1:   0.340978,  train/cons_cost/mt:   0.000017
+INFO:train_log:step   100:   eval/error/ema:  25.0%,  eval/error/1:  25.0%,  eval/class_cost/1:   0.685667
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-100'
+INFO:train_log:step   120:   train/error/1:  26.0%,  train/class_cost/1:   0.340689,  train/cons_cost/mt:   0.000028
+INFO:train_log:step   140:   train/error/1:  24.0%,  train/class_cost/1:   0.337170,  train/cons_cost/mt:   0.000055
+INFO:train_log:step   160:   train/error/1:  24.0%,  train/class_cost/1:   0.334373,  train/cons_cost/mt:   0.000074
+INFO:train_log:step   180:   train/error/1:  22.0%,  train/class_cost/1:   0.331090,  train/cons_cost/mt:   0.000119
+INFO:train_log:step   200:   train/error/1:  30.0%,  train/class_cost/1:   0.330596,  train/cons_cost/mt:   0.000256
+INFO:train_log:step   200:   eval/error/ema:  25.0%,  eval/error/1:  25.0%,  eval/class_cost/1:   0.668083
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-200'
+INFO:train_log:step   220:   train/error/1:  24.0%,  train/class_cost/1:   0.322972,  train/cons_cost/mt:   0.000328
+INFO:train_log:step   240:   train/error/1:  26.0%,  train/class_cost/1:   0.313874,  train/cons_cost/mt:   0.000733
+INFO:train_log:step   260:   train/error/1:  28.0%,  train/class_cost/1:   0.311211,  train/cons_cost/mt:   0.000892
+INFO:train_log:step   280:   train/error/1:  22.0%,  train/class_cost/1:   0.302655,  train/cons_cost/mt:   0.001653
+INFO:train_log:step   300:   train/error/1:  18.0%,  train/class_cost/1:   0.293228,  train/cons_cost/mt:   0.002275
+INFO:train_log:step   300:   eval/error/ema:  37.5%,  eval/error/1:  25.0%,  eval/class_cost/1:   0.582038
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-300'
+INFO:train_log:step   320:   train/error/1:  30.0%,  train/class_cost/1:   0.291986,  train/cons_cost/mt:   0.004708
+INFO:train_log:step   340:   train/error/1:  12.0%,  train/class_cost/1:   0.255960,  train/cons_cost/mt:   0.006242
+INFO:train_log:step   360:   train/error/1:   6.0%,  train/class_cost/1:   0.229512,  train/cons_cost/mt:   0.008809
+INFO:train_log:step   380:   train/error/1:   4.0%,  train/class_cost/1:   0.206186,  train/cons_cost/mt:   0.010076
+INFO:train_log:step   400:   train/error/1:   6.0%,  train/class_cost/1:   0.208321,  train/cons_cost/mt:   0.010691
+INFO:train_log:step   400:   eval/error/ema:  25.0%,  eval/error/1:   0.0%,  eval/class_cost/1:   0.382469
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-400'
+INFO:train_log:step   420:   train/error/1:  10.0%,  train/class_cost/1:   0.217400,  train/cons_cost/mt:   0.012125
+INFO:train_log:step   440:   train/error/1:   8.0%,  train/class_cost/1:   0.212277,  train/cons_cost/mt:   0.010515
+INFO:train_log:step   460:   train/error/1:   6.0%,  train/class_cost/1:   0.192074,  train/cons_cost/mt:   0.011348
+INFO:train_log:step   480:   train/error/1:  10.0%,  train/class_cost/1:   0.207483,  train/cons_cost/mt:   0.010602
+INFO:train_log:step   500:   train/error/1:   6.0%,  train/class_cost/1:   0.191393,  train/cons_cost/mt:   0.010631
+INFO:train_log:step   500:   eval/error/ema:   0.0%,  eval/error/1:   0.0%,  eval/class_cost/1:   0.323507
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-500'
+INFO:train_log:step   520:   train/error/1:   8.0%,  train/class_cost/1:   0.188986,  train/cons_cost/mt:   0.004317
+INFO:train_log:step   540:   train/error/1:  10.0%,  train/class_cost/1:   0.206244,  train/cons_cost/mt:   0.004317
+INFO:train_log:step   560:   train/error/1:   6.0%,  train/class_cost/1:   0.184781,  train/cons_cost/mt:   0.005192
+INFO:train_log:step   580:   train/error/1:   8.0%,  train/class_cost/1:   0.196262,  train/cons_cost/mt:   0.004362
+INFO:train_log:step   600:   train/error/1:   6.0%,  train/class_cost/1:   0.183331,  train/cons_cost/mt:   0.003823
+INFO:train_log:step   600:   eval/error/ema:   0.0%,  eval/error/1:   0.0%,  eval/class_cost/1:   0.315817
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-600'
+INFO:train_log:step   620:   train/error/1:   6.0%,  train/class_cost/1:   0.185427,  train/cons_cost/mt:   0.003830
+INFO:train_log:step   640:   train/error/1:   8.0%,  train/class_cost/1:   0.192277,  train/cons_cost/mt:   0.001367
+INFO:train_log:step   660:   train/error/1:   2.0%,  train/class_cost/1:   0.171580,  train/cons_cost/mt:   0.001595
+INFO:train_log:step   680:   train/error/1:   8.0%,  train/class_cost/1:   0.195598,  train/cons_cost/mt:   0.000658
+INFO:train_log:step   700:   train/error/1:  10.0%,  train/class_cost/1:   0.205371,  train/cons_cost/mt:   0.007384
+INFO:train_log:step   700:   eval/error/ema:   0.0%,  eval/error/1:   0.0%,  eval/class_cost/1:   0.364825
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-700'
+INFO:train_log:step   720:   train/error/1:   2.0%,  train/class_cost/1:   0.168897,  train/cons_cost/mt:   0.000872
+INFO:train_log:step   740:   train/error/1:  12.0%,  train/class_cost/1:   0.216699,  train/cons_cost/mt:   0.002663
+INFO:train_log:step   760:   train/error/1:  10.0%,  train/class_cost/1:   0.199892,  train/cons_cost/mt:   0.000238
+INFO:train_log:step   780:   train/error/1:   6.0%,  train/class_cost/1:   0.182859,  train/cons_cost/mt:   0.000477
+INFO:train_log:step   800:   train/error/1:   6.0%,  train/class_cost/1:   0.184749,  train/cons_cost/mt:   0.001194
+INFO:train_log:step   800:   eval/error/ema:   0.0%,  eval/error/1:   0.0%,  eval/class_cost/1:   0.315686
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-800'
+INFO:train_log:step   820:   train/error/1:  10.0%,  train/class_cost/1:   0.203060,  train/cons_cost/mt:   0.003778
+INFO:train_log:step   840:   train/error/1:   6.0%,  train/class_cost/1:   0.185498,  train/cons_cost/mt:   0.001975
+INFO:train_log:step   860:   train/error/1:   8.0%,  train/class_cost/1:   0.198109,  train/cons_cost/mt:   0.001993
+INFO:train_log:step   880:   train/error/1:   6.0%,  train/class_cost/1:   0.188265,  train/cons_cost/mt:   0.000413
+INFO:train_log:step   900:   train/error/1:   8.0%,  train/class_cost/1:   0.196685,  train/cons_cost/mt:   0.001126
+INFO:train_log:step   900:   eval/error/ema:   0.0%,  eval/error/1:   0.0%,  eval/class_cost/1:   0.314502
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-900'
+INFO:train_log:step   920:   train/error/1:  10.0%,  train/class_cost/1:   0.205952,  train/cons_cost/mt:   0.000153
+INFO:train_log:step   940:   train/error/1:   6.0%,  train/class_cost/1:   0.187150,  train/cons_cost/mt:   0.001808
+INFO:train_log:step   960:   train/error/1:   6.0%,  train/class_cost/1:   0.186725,  train/cons_cost/mt:   0.000123
+INFO:train_log:step   980:   train/error/1:  10.0%,  train/class_cost/1:   0.206676,  train/cons_cost/mt:   0.000195
+INFO:train_log:step  1000:   train/error/1:  10.0%,  train/class_cost/1:   0.206567,  train/cons_cost/mt:   0.000659
+INFO:train_log:step  1000:   eval/error/ema:   0.0%,  eval/error/1:   0.0%,  eval/class_cost/1:   0.313791
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-1000'
+INFO:train_log:step  1020:   train/error/1:  10.0%,  train/class_cost/1:   0.204381,  train/cons_cost/mt:   0.000993
+INFO:train_log:step  1040:   train/error/1:   4.0%,  train/class_cost/1:   0.180856,  train/cons_cost/mt:   0.003088
+INFO:train_log:step  1060:   train/error/1:   8.0%,  train/class_cost/1:   0.198134,  train/cons_cost/mt:   0.005593
+INFO:train_log:step  1080:   train/error/1:   8.0%,  train/class_cost/1:   0.194788,  train/cons_cost/mt:   0.002357
+INFO:train_log:step  1100:   train/error/1:  12.0%,  train/class_cost/1:   0.216257,  train/cons_cost/mt:   0.001367
+INFO:train_log:step  1100:   eval/error/ema:   0.0%,  eval/error/1:   0.0%,  eval/class_cost/1:   0.313283
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-1100'
+INFO:train_log:step  1120:   train/error/1:   6.0%,  train/class_cost/1:   0.183835,  train/cons_cost/mt:   0.000136
+INFO:train_log:step  1140:   train/error/1:  16.0%,  train/class_cost/1:   0.237982,  train/cons_cost/mt:   0.001982
+INFO:train_log:step  1160:   train/error/1:   8.0%,  train/class_cost/1:   0.215154,  train/cons_cost/mt:   0.015428
+INFO:train_log:step  1180:   train/error/1:   6.0%,  train/class_cost/1:   0.188747,  train/cons_cost/mt:   0.000559
+INFO:train_log:step  1200:   train/error/1:   8.0%,  train/class_cost/1:   0.193587,  train/cons_cost/mt:   0.001686
+INFO:train_log:step  1200:   eval/error/ema:   0.0%,  eval/error/1:   0.0%,  eval/class_cost/1:   0.332290
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-1200'
+INFO:train_log:step  1220:   train/error/1:   6.0%,  train/class_cost/1:   0.185265,  train/cons_cost/mt:   0.001067
+INFO:train_log:step  1240:   train/error/1:   8.0%,  train/class_cost/1:   0.197009,  train/cons_cost/mt:   0.000562
+INFO:train_log:step  1260:   train/error/1:  16.0%,  train/class_cost/1:   0.226987,  train/cons_cost/mt:   0.008685
+INFO:train_log:step  1280:   train/error/1:  10.0%,  train/class_cost/1:   0.207889,  train/cons_cost/mt:   0.007308
+INFO:train_log:step  1300:   train/error/1:  10.0%,  train/class_cost/1:   0.204939,  train/cons_cost/mt:   0.002384
+INFO:train_log:step  1300:   eval/error/ema:   0.0%,  eval/error/1:   0.0%,  eval/class_cost/1:   0.342099
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-1300'
+INFO:train_log:step  1320:   train/error/1:   8.0%,  train/class_cost/1:   0.197450,  train/cons_cost/mt:   0.001512
+INFO:train_log:step  1340:   train/error/1:   8.0%,  train/class_cost/1:   0.194725,  train/cons_cost/mt:   0.001401
+INFO:train_log:step  1360:   train/error/1:   6.0%,  train/class_cost/1:   0.186947,  train/cons_cost/mt:   0.000672
+INFO:train_log:step  1380:   train/error/1:   6.0%,  train/class_cost/1:   0.186875,  train/cons_cost/mt:   0.001814
+INFO:train_log:step  1400:   train/error/1:  14.0%,  train/class_cost/1:   0.226721,  train/cons_cost/mt:   0.016292
+INFO:train_log:step  1400:   eval/error/ema:   0.0%,  eval/error/1:   0.0%,  eval/class_cost/1:   0.333686
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-1400'
+INFO:train_log:step  1420:   train/error/1:  10.0%,  train/class_cost/1:   0.200959,  train/cons_cost/mt:   0.001591
+INFO:train_log:step  1440:   train/error/1:   8.0%,  train/class_cost/1:   0.196126,  train/cons_cost/mt:   0.008798
+INFO:train_log:step  1460:   train/error/1:   8.0%,  train/class_cost/1:   0.198902,  train/cons_cost/mt:   0.000531
+INFO:train_log:step  1480:   train/error/1:   4.0%,  train/class_cost/1:   0.182144,  train/cons_cost/mt:   0.001880
+INFO:train_log:step  1500:   train/error/1:   8.0%,  train/class_cost/1:   0.198419,  train/cons_cost/mt:   0.000820
+INFO:train_log:step  1500:   eval/error/ema:  25.0%,  eval/error/1:   0.0%,  eval/class_cost/1:   0.333643
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-1500'
+INFO:train_log:step  1520:   train/error/1:  10.0%,  train/class_cost/1:   0.202524,  train/cons_cost/mt:   0.006300
+INFO:train_log:step  1540:   train/error/1:   2.0%,  train/class_cost/1:   0.168337,  train/cons_cost/mt:   0.003220
+INFO:train_log:step  1560:   train/error/1:   6.0%,  train/class_cost/1:   0.185317,  train/cons_cost/mt:   0.010424
+INFO:train_log:step  1580:   train/error/1:   6.0%,  train/class_cost/1:   0.189503,  train/cons_cost/mt:   0.007783
+INFO:train_log:step  1600:   train/error/1:   6.0%,  train/class_cost/1:   0.187017,  train/cons_cost/mt:   0.000951
+INFO:train_log:step  1600:   eval/error/ema:  25.0%,  eval/error/1:  12.5%,  eval/class_cost/1:   0.420261
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-1600'
+INFO:train_log:step  1620:   train/error/1:   8.0%,  train/class_cost/1:   0.196212,  train/cons_cost/mt:   0.012015
+INFO:train_log:step  1640:   train/error/1:  12.0%,  train/class_cost/1:   0.211415,  train/cons_cost/mt:   0.000619
+INFO:train_log:step  1660:   train/error/1:   8.0%,  train/class_cost/1:   0.197516,  train/cons_cost/mt:   0.009556
+INFO:train_log:step  1680:   train/error/1:  12.0%,  train/class_cost/1:   0.220749,  train/cons_cost/mt:   0.000223
+INFO:train_log:step  1700:   train/error/1:  10.0%,  train/class_cost/1:   0.201445,  train/cons_cost/mt:   0.001049
+INFO:train_log:step  1700:   eval/error/ema:  25.0%,  eval/error/1:  12.5%,  eval/class_cost/1:   0.416082
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-1700'
+INFO:train_log:step  1720:   train/error/1:   8.0%,  train/class_cost/1:   0.192571,  train/cons_cost/mt:   0.004464
+INFO:train_log:step  1740:   train/error/1:  10.0%,  train/class_cost/1:   0.208778,  train/cons_cost/mt:   0.013302
+INFO:train_log:step  1760:   train/error/1:  10.0%,  train/class_cost/1:   0.212735,  train/cons_cost/mt:   0.004647
+INFO:train_log:step  1780:   train/error/1:   8.0%,  train/class_cost/1:   0.194527,  train/cons_cost/mt:   0.000991
+INFO:train_log:step  1800:   train/error/1:  10.0%,  train/class_cost/1:   0.196901,  train/cons_cost/mt:   0.008859
+INFO:train_log:step  1800:   eval/error/ema:  25.0%,  eval/error/1:  25.0%,  eval/class_cost/1:   0.519691
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-1800'
+INFO:train_log:step  1820:   train/error/1:  12.0%,  train/class_cost/1:   0.205964,  train/cons_cost/mt:   0.001902
+INFO:train_log:step  1840:   train/error/1:  12.0%,  train/class_cost/1:   0.208244,  train/cons_cost/mt:   0.001644
+INFO:train_log:step  1860:   train/error/1:   6.0%,  train/class_cost/1:   0.189878,  train/cons_cost/mt:   0.003011
+INFO:train_log:step  1880:   train/error/1:   8.0%,  train/class_cost/1:   0.200228,  train/cons_cost/mt:   0.002132
+INFO:train_log:step  1900:   train/error/1:  10.0%,  train/class_cost/1:   0.201175,  train/cons_cost/mt:   0.002196
+INFO:train_log:step  1900:   eval/error/ema:  25.0%,  eval/error/1:  12.5%,  eval/class_cost/1:   0.433486
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-1900'
+INFO:train_log:step  1920:   train/error/1:   4.0%,  train/class_cost/1:   0.185811,  train/cons_cost/mt:   0.013487
+INFO:train_log:step  1940:   train/error/1:   4.0%,  train/class_cost/1:   0.177728,  train/cons_cost/mt:   0.000554
+INFO:train_log:step  1960:   train/error/1:  10.0%,  train/class_cost/1:   0.207727,  train/cons_cost/mt:   0.002651
+INFO:train_log:step  1980:   train/error/1:  10.0%,  train/class_cost/1:   0.207327,  train/cons_cost/mt:   0.007079
+INFO:train_log:step  2000:   train/error/1:   6.0%,  train/class_cost/1:   0.192076,  train/cons_cost/mt:   0.001481
+INFO:train_log:step  2000:   eval/error/ema:  25.0%,  eval/error/1:  25.0%,  eval/class_cost/1:   0.478267
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-2000'
+INFO:train_log:step  2020:   train/error/1:   6.0%,  train/class_cost/1:   0.187837,  train/cons_cost/mt:   0.004158
+INFO:train_log:step  2040:   train/error/1:  10.0%,  train/class_cost/1:   0.209505,  train/cons_cost/mt:   0.005095
+INFO:train_log:step  2060:   train/error/1:   6.0%,  train/class_cost/1:   0.185272,  train/cons_cost/mt:   0.018475
+INFO:train_log:step  2080:   train/error/1:  12.0%,  train/class_cost/1:   0.217051,  train/cons_cost/mt:   0.000135
+INFO:train_log:step  2100:   train/error/1:  14.0%,  train/class_cost/1:   0.233475,  train/cons_cost/mt:   0.055721
+INFO:train_log:step  2100:   eval/error/ema:  25.0%,  eval/error/1:  12.5%,  eval/class_cost/1:   0.411639
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-2100'
+INFO:train_log:Stop Training
+INFO:train_log:step  2100:   eval/error/ema:  25.0%,  eval/error/1:  12.5%,  eval/class_cost/1:   0.411639
+INFO:train_log:Saved checkpoint: '../../models/mean_teacher-2100'
+WARNING:tensorflow:From /home/oem/Projects/NetDeviceAbnormalDetection/networks/meanTeacher/network.py:82: calling reduce_mean (from tensorflow.python.ops.math_ops) with keep_dims is deprecated and will be removed in a future version.
+Instructions for updating:
+keep_dims is deprecated, use keepdims instead
+WARNING:tensorflow:From /home/oem/Projects/NetDeviceAbnormalDetection/networks/meanTeacher/model.py:491: softmax_cross_entropy_with_logits (from tensorflow.python.ops.nn_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+
+Future major versions of TensorFlow will allow gradients to flow
+into the labels input on backprop by default.
+
+See `tf.nn.softmax_cross_entropy_with_logits_v2`.
+
+WARNING:tensorflow:From /home/oem/Projects/NetDeviceAbnormalDetection/networks/meanTeacher/model.py:189: streaming_mean (from tensorflow.contrib.metrics.python.ops.metric_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Please switch to tf.metrics.mean
+INFO:tensorflow:Restoring parameters from ../../models/mean_teacher-1100
