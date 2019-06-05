@@ -8,6 +8,7 @@ from networks.meanTeacher.utils import random_balanced_partitions, random_partit
 from networks.meanTeacher.minibatching import *
 from imblearn.over_sampling import RandomOverSampler
 import collections
+import math
 
 class EuTk:
     def __init__(self):
@@ -52,11 +53,13 @@ class EuTk_pred:
         array['y'] = train_y
         alarmed = array[array['y']==1]
         normal = array[array['y']==0]
-        unlabeled = array[array['y'] == -1]
+        # unlabeled = array[array['y'] == -1]
         # unlabeled, unlabeled_ = train_test_split(unlabeled, test_size=alarmed.shape[0]*9, random_state=42)
         # unlabeled_['y'] = 0
         # normal = np.concatenate([normal, unlabeled_])
 
+        unlabeled, normal = train_test_split(normal, test_size=round(alarmed.shape[0]/10), random_state=42)
+        unlabeled['y'] = -1
 
         labeled =  np.concatenate([alarmed, normal], axis=0)
         # ROS = RandomOverSampler(random_state=42)
@@ -73,7 +76,7 @@ class EuTk_pred:
         # normal['y'] = -1
         # unlabeled = np.concatenate([unlabeled, normal], axis=0)
         # split train and test set
-        lb_train, self.test = train_test_split(labeled,test_size=0.5,random_state=2)
+        lb_train, self.test = train_test_split(labeled,test_size=0.2,random_state=2)
         # split train and validation set
         lb_train, self.evaluation = train_test_split(lb_train,test_size=0.1,random_state=2)
         print(collections.Counter(lb_train['y']))

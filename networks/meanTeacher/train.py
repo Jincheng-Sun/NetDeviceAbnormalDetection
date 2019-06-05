@@ -11,19 +11,20 @@ model['max_consistency_cost'] = 50.0
 
 tensorboard_dir = model.save_tensorboard_graph()
 #
-eutk = EuTk_pred(path_x='../../data/perdevice/OPTMON_LossOfSignal_86_3_pm.npy',
-                 path_y='../../data/perdevice/OPTMON_LossOfSignal_alarm.npy')
+eutk = EuTk_pred(path_x='../../data/perdevice/ETH_LossOfSignal_86_3_pm.npy',
+                 path_y='../../data/perdevice/ETH_LossOfSignal_alarm_2days.npy')
+
 print('finish loading dataset')
 # training_batches = minibatching.training_batches(eutk.training, n_labeled_per_batch=50)
 # evaluation_batches_fn = minibatching.evaluation_epoch_generator(eutk.evaluation)
 #
 # model.train(training_batches, evaluation_batches_fn)
-
+#
 from toolPackage.draw_cm import cm_metrix, cm_analysis
 from sklearn.metrics import accuracy_score,classification_report
 test_x = eutk.test['x']
 test_y = eutk.test['y']
-model.restore_checkpoint(1100)
+model.restore_checkpoint(1000)
 result1,result2,result3 = model.test(test_x,test_y)
 result = np.argmax(result1,axis=1)
 result = result.reshape([-1,1])
