@@ -8,6 +8,7 @@ from networks.meanTeacher.utils import random_balanced_partitions, random_partit
 from networks.meanTeacher.minibatching import *
 from imblearn.over_sampling import RandomOverSampler
 import collections
+import math
 
 class EuTk:
     def __init__(self):
@@ -27,6 +28,58 @@ class EuTk:
         lb_train, self.test = train_test_split(labeled,test_size=0.2,random_state=42)
         # split train and validation set
         lb_train, self.evaluation = train_test_split(lb_train,test_size=0.1,random_state=42)
+        print(collections.Counter(lb_train['y']))
+
+        # ROS = RandomOverSampler(random_state=42)
+        # train_x, train_y = ROS.fit_resample(np.squeeze(lb_train['x']),lb_train['y'])
+        # print(collections.Counter(train_y))
+        # train_x = train_x.reshape([-1, 86, 1])
+        # lb_train = np.zeros(train_x.shape[0], dtype=[
+        #     ('x', np.float32, (86, 1)),
+        #     ('y', np.int32, ())  # We will be using -1 for unlabeled
+        # ])
+        # lb_train['x'] = train_x
+        # lb_train['y'] = train_y
+        self.training = np.concatenate([lb_train, unlabeled],axis=0)
+
+class EuTk_pred:
+    def __init__(self, path_x, path_y):
+        train_x = np.load(path_x)
+        train_y = np.load(path_y)
+        array = np.zeros(train_x.shape[0], dtype=[
+            ('x', np.float32, (3, 86, 1)),
+            ('y', np.int32, ())  # We will be using -1 for unlabeled
+        ])
+        array['x'] = train_x
+        array['y'] = train_y
+        alarmed = array[array['y']==1]
+        normal = array[array['y']==0]
+        # unlabeled = array[array['y'] == -1]
+        # unlabeled, unlabeled_ = train_test_split(unlabeled, test_size=alarmed.shape[0]*9, random_state=42)
+        # unlabeled_['y'] = 0
+        # normal = np.concatenate([normal, unlabeled_])
+
+        unlabeled, normal = train_test_split(normal, test_size=round(alarmed.shape[0]/10), random_state=42)
+        unlabeled['y'] = -1
+
+        labeled =  np.concatenate([alarmed, normal], axis=0)
+        # ROS = RandomOverSampler(random_state=42)
+        # labeled_ = np.zeros(train_x.shape[0], dtype=[
+        #     ('x', np.float32, (3, 86, 1)),
+        #     ('y', np.int32, ())  # We will be using -1 for unlabeled
+        # ])
+        # labeled_x = np.squeeze(labeled['x'])
+        # labeled_x, labeled_['y'] = ROS.fit_resample(labeled_x, labeled['y'])
+        # labeled_['x'] = labeled_x.reshape([-1,3,86,1])
+
+        # normal, n_train = train_test_split(normal, test_size=alarmed.shape[0], random_state=42)
+        # labeled = np.concatenate([alarmed, n_train], axis=0)
+        # normal['y'] = -1
+        # unlabeled = np.concatenate([unlabeled, normal], axis=0)
+        # split train and test set
+        lb_train, self.test = train_test_split(labeled,test_size=0.2,random_state=2)
+        # split train and validation set
+        lb_train, self.evaluation = train_test_split(lb_train,test_size=0.1,random_state=2)
         print(collections.Counter(lb_train['y']))
 
         # ROS = RandomOverSampler(random_state=42)

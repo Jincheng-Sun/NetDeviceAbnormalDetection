@@ -2,6 +2,8 @@
 data/
 models/
 networks/meanTeacher/log/
+__pycache__/
+
 #ide files
 .idea/
 .DS_Store
