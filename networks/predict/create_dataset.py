@@ -1,12 +1,26 @@
 import pandas as pd
 import numpy as np
 
+
+
 m = 3
 n = 2
-dev_type = 'OPTMON'
-file_path = '/Users/sunjincheng/Desktop/Ciena_EU_project/EU_ciena_pro/data/Europe_Network_data.parquet'
+dev_type = 'ETH'
+file_path = '/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_Network_data.parquet'
+#--------------------------------------------------------------------------------
+# dataset 1
+data = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_network_data.parquet')
+alarm = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_network_labels.parquet')
+alarm = alarm.loc[~alarm['description'].str.contains('Demo for Josh')]
+alarm['TIME'] = pd.to_datetime(alarm['time'], infer_datetime_format=True).dt.floor('1D')
+alarm = alarm.drop(['description','time','timestamp','extraAttributes'], axis=1).rename({'category':'ALARM'}, axis=1)
+alarm = alarm.drop_duplicates()
+data = pd.merge(data,alarm,'left', on=['ID', 'TIME'])
+# --------------------------------------------------------------------------------
+#dataset 2
 
-data = pd.read_parquet(file_path)
+# data = pd.read_parquet(file_path)
+print(data.shape)
 devices = data[data['GROUPBYKEY'] == dev_type]  # extract certain type of device
 
 dev_count = devices['ID'].value_counts()
@@ -54,5 +68,5 @@ y = np.array(y)
 
 import collections
 print(collections.Counter(y.flatten()))
-np.save('/Users/sunjincheng/Desktop/Ciena_EU_project/EU_ciena_pro/data/predict/OPTMON_pms_3_45.npy',x)
-np.save('/Users/sunjincheng/Desktop/Ciena_EU_project/EU_ciena_pro/data/predict/OPTMON_alarms.npy',y)
+np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_pms_3_45.npy'%dev_type,x)
+np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_alarms_2days.npy'%dev_type,y)
