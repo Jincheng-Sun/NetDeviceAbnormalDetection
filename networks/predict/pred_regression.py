@@ -68,7 +68,7 @@ dataset = pred_Dataset_2(x_path= '/home/oem/Projects/NetDeviceAbnormalDetection/
 
 
 '''create model'''
-input = Input(shape=(3, 4, 1))
+input = Input(shape=(3, 5, 1))
 layer = Conv2D(filters=32,
                kernel_size=3,
                kernel_initializer='random_uniform',
@@ -109,7 +109,7 @@ model.fit(dataset.train_set['x'], dataset.train_set['y'],
           validation_data=(dataset.val_set['x'], dataset.val_set['y']),
           callbacks=[monitor])
 
-model.save('modelOTM')
+model.save('model_%s'%device_type)
 
 pred = model.predict(dataset.test_set['x'])
 results = pred

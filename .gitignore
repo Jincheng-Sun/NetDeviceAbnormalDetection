@@ -2,6 +2,7 @@
 data/
 models/
 model*
+utils/
 networks/meanTeacher/log/
 __pycache__/
 
