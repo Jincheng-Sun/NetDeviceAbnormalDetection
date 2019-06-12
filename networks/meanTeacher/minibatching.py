@@ -20,9 +20,10 @@ def evaluation_epoch_generator(data, batch_size=100):
 def training_batches(data, batch_size=100, n_labeled_per_batch=50, random=np.random):
     n_unlabeled_per_batch = batch_size - n_labeled_per_batch
     labeled_data, unlabeled_data = split_labeled(data)
-    return combine_batches(
-        batches(labeled_data, n_labeled_per_batch, random),
-        batches(unlabeled_data, n_unlabeled_per_batch, random))
+    # return combine_batches(
+    #     batches(labeled_data, n_labeled_per_batch, random),
+    #     batches(unlabeled_data, n_unlabeled_per_batch, random))
+    return batches(labeled_data, n_labeled_per_batch, random)
 
 
 

@@ -47,7 +47,7 @@ class EuTk_pred:
         train_x = np.load(path_x)
         train_y = np.load(path_y)
         array = np.zeros(train_x.shape[0], dtype=[
-            ('x', np.float32, (3, 86, 1)),
+            ('x', np.float32, train_x.shape[1:]),
             ('y', np.int32, ())  # We will be using -1 for unlabeled
         ])
         array['x'] = train_x
@@ -93,6 +93,8 @@ class EuTk_pred:
         # lb_train['x'] = train_x
         # lb_train['y'] = train_y
         self.training = np.concatenate([lb_train, unlabeled],axis=0)
+
+
 
 
 

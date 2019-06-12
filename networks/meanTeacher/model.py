@@ -61,7 +61,7 @@ class Model:
         self.checkpoint_path = '../../models/mean_teacher'
         self.tensorboard_path = 'log/'
         with tf.name_scope('placeholders'):
-            self.features = tf.placeholder(dtype=tf.float32, shape=(None,3, 86, 1), name='features')
+            self.features = tf.placeholder(dtype=tf.float32, shape=(None,4, 6, 1), name='features')
             self.labels = tf.placeholder(dtype=tf.int32, shape=(None,), name='labels')
             self.is_training = tf.placeholder(dtype=tf.bool, shape=(), name='is_training')
 
