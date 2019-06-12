@@ -6,7 +6,7 @@ from keras.callbacks import EarlyStopping
 from keras.models import load_model
 import sys
 sys.path.insert(0,'/home/oem/Projects/Kylearn')
-from examples.ciena.ciena_pred_dataset import pred_Dataset
+from examples.ciena.ciena_pred_dataset import *
 from visualization.draw_matrix import *
 
 
@@ -62,13 +62,13 @@ def resnet_block(layer, filters, kernels, dropout, activation,
 
 '''dataset'''
 
-device_type = 'OTM'
-dataset = pred_Dataset(x_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_pms_3_partial_v2.npy'%device_type,
+device_type = 'OPTMON'
+dataset = pred_Dataset_2(x_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_pms_3_partial_v2.npy'%device_type,
                     y_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_alarms_2days_v2.npy'%device_type)
 
 
 '''create model'''
-input = Input(shape=(3, 6, 1))
+input = Input(shape=(3, 4, 1))
 layer = Conv2D(filters=32,
                kernel_size=3,
                kernel_initializer='random_uniform',
