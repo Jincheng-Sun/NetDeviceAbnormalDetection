@@ -1,6 +1,7 @@
 #filepath
 data/
 models/
+model*
 networks/meanTeacher/log/
 __pycache__/
 

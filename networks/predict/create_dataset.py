@@ -5,7 +5,9 @@ import numpy as np
 
 m = 3
 n = 2
-dev_type = 'OPTMON'
+dev_type = 'ALL'
+dev_list = ['CHMON', 'STM64', 'OC192', 'STTP', 'STM4', 'STM16', 'NMCMON', 'OC48', 'OC12', 'OC3', 'FLEX', 'RAMAN']
+
 file_path = '/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_Network_data.parquet'
 label_list = ['IS', 'n/a', 'IS-ANR']
 
@@ -49,7 +51,8 @@ data = pd.merge(data,alarm,'left', on=['ID', 'TIME'])
 
 # data = pd.read_parquet(file_path)
 print(data.shape)
-devices = data[data['GROUPBYKEY'] == dev_type]  # extract certain type of device
+# devices = data[data['GROUPBYKEY'] == dev_type]  # extract certain type of device
+devices = data
 
 dev_count = devices['ID'].value_counts()
 dev_count = dev_count.drop(dev_count[dev_count < m + n].index).index.tolist()
