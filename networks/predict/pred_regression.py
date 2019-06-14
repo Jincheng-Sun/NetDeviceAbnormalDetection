@@ -63,8 +63,8 @@ def resnet_block(layer, filters, kernels, dropout, activation,
 '''dataset'''
 
 device_type = 'OPTMON'
-dataset = pred_Dataset_2(x_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_pms_3_partial_v2.npy'%device_type,
-                    y_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_alarms_2days_v2.npy'%device_type)
+dataset = pred_Dataset_2(x_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_pms_3_partial_may.npy'%device_type,
+                    y_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_alarms_2days_may.npy'%device_type)
 
 
 '''create model'''
@@ -109,11 +109,12 @@ model.fit(dataset.train_set['x'], dataset.train_set['y'],
           validation_data=(dataset.val_set['x'], dataset.val_set['y']),
           callbacks=[monitor])
 
-model.save('model_%s'%device_type)
+model.save('model_%s_2'%device_type)
 
+# --------------------validation-------------------------
 pred = model.predict(dataset.test_set['x'])
 results = pred
-threshold = 0.8
+threshold = 0.9
 results[results >= threshold] = 1
 results[results < threshold] = 0
 
