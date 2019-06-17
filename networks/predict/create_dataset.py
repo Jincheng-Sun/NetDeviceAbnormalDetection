@@ -5,14 +5,20 @@ import gc
 gc.enable()
 m = 3
 n = 2
-dev_type = 'ALL'
+dev_type = 'OTM'
 # devices we are focusing on
-dev_list = ['CHMON', 'STM64', 'OC192', 'STTP', 'STM4', 'STM16', 'NMCMON', 'OC48', 'OC12', 'OC3', 'FLEX', 'RAMAN']
+drop_list = ['CHMON', 'STM64', 'OC192', 'STTP', 'STM4', 'STM16', 'NMCMON', 'OC48', 'OC12', 'OC3', 'FLEX', 'RAMAN']
 # alarms we are focusing on
+
 alarm_list = None
 file_path = '/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_Network_Data_May13.parquet'
 label_list = ['IS', 'n/a', 'IS-ANR']
 
+dev_list = {
+            'OTM': ['OTM', 'OTM2', 'OTM3', 'OTM4', 'OTMC2'],
+            'ETH': ['ETH', 'ETHN', 'ETH10G', 'ETH40G', 'ETH100', 'ETH100G', 'ETHFlex', 'Flex'],
+            'OPTMON': ['OPTMON']
+}
 PM_list = {'OTM': ['OPRMAX-OCH_OPRMIN-OCH_-', 'OPRAVG-OCH', 'OTU-ES', 'OTU-QAVG', 'OTU-QSTDEV'],
            'ETH': [
                'E-CV',
@@ -110,14 +116,14 @@ data = pd.read_parquet(file_path)
 data = data.drop(['LASTOCCURRENCE'], axis=1)
 
 # Case all
-devices = data[~data['GROUPBYKEY'].isin(dev_list)]
-PM_list['ALL'] = data.columns[4:49]
+# devices = data[~data['GROUPBYKEY'].isin(drop_list)]
+# PM_list['ALL'] = data.columns[4:49]
 
 
 
 # Case one device
-# devices = data[data['GROUPBYKEY'] == dev_type]  # extract certain type of device
-
+# devices = data[data['GROUPBYKEY'].isin(dev_list[dev_type])]  # extract certain type of device
+devices = data[data['GROUPBYKEY'] == dev_type]
 # alarm = data['ALARM'].value_counts()
 # # focus on alarms that appear more than 50 times
 # alm_list = alarm[(alarm > 50) & (alarm < 10000)].index.tolist()

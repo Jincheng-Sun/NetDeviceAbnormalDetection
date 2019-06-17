@@ -62,13 +62,13 @@ def resnet_block(layer, filters, kernels, dropout, activation,
 
 '''dataset'''
 
-device_type = 'OPTMON'
-dataset = pred_Dataset_2(x_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_pms_3_partial_may.npy'%device_type,
+device_type = 'ALL'
+dataset = pred_Dataset_2(x_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_pms_3days_may.npy'%device_type,
                     y_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_alarms_2days_may.npy'%device_type)
 
 
 '''create model'''
-input = Input(shape=(3, 5, 1))
+input = Input(shape=(3, 45, 1))
 layer = Conv2D(filters=32,
                kernel_size=3,
                kernel_initializer='random_uniform',
@@ -85,7 +85,7 @@ layer = resnet_block(layer, 128, 3, 0, 'relu')
 layer = resnet_block(layer, 256, 3, 0, 'relu', cross_block=True, shrink=True)
 layer = resnet_block(layer, 256, 3, 0, 'relu')
 layer = Flatten()(layer)
-output = Dense(units=1, activation='sigmoid')(layer)
+output = Dense(units=1, activation='tanh')(layer)
 
 model = Model(inputs=[input], outputs=[output])
 
@@ -100,7 +100,7 @@ optimizer = RMSprop(0.001)
 model.summary()
 model.compile(loss='mean_squared_error',
               optimizer=optimizer,
-              metrics=['mean_squared_error'])
+              metrics=[])
 monitor = EarlyStopping(monitor='val_loss', min_delta=1e-3, patience=10, mode='auto', restore_best_weights=True)
 
 model.fit(dataset.train_set['x'], dataset.train_set['y'],
@@ -109,7 +109,7 @@ model.fit(dataset.train_set['x'], dataset.train_set['y'],
           validation_data=(dataset.val_set['x'], dataset.val_set['y']),
           callbacks=[monitor])
 
-model.save('model_%s_2'%device_type)
+model.save('model_%s_s'%device_type)
 
 # --------------------validation-------------------------
 pred = model.predict(dataset.test_set['x'])
