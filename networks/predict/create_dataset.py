@@ -2,43 +2,9 @@ import pandas as pd
 import numpy as np
 import gc
 
+
 gc.enable()
-m = 3
-n = 2
-dev_type = 'OTM'
-# devices we are focusing on
-drop_list = ['CHMON', 'STM64', 'OC192', 'STTP', 'STM4', 'STM16', 'NMCMON', 'OC48', 'OC12', 'OC3', 'FLEX', 'RAMAN']
-# alarms we are focusing on
 
-alarm_list = None
-file_path = '/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_Network_Data_May13.parquet'
-label_list = ['IS', 'n/a', 'IS-ANR']
-
-dev_list = {
-            'OTM': ['OTM', 'OTM2', 'OTM3', 'OTM4', 'OTMC2'],
-            'ETH': ['ETH', 'ETHN', 'ETH10G', 'ETH40G', 'ETH100', 'ETH100G', 'ETHFlex', 'Flex'],
-            'OPTMON': ['OPTMON']
-}
-PM_list = {'OTM': ['OPRMAX-OCH_OPRMIN-OCH_-', 'OPRAVG-OCH', 'OTU-ES', 'OTU-QAVG', 'OTU-QSTDEV'],
-           'ETH': [
-               'E-CV',
-               'E-ES',
-               'E-INFRAMESERR_E-INFRAMES_/',
-               'E-OUTFRAMESERR_E-OUTFRAMES_/',
-               'E-UAS',
-               'PCS-CV',
-               'PCS-ES',
-               'PCS-UAS'
-           ], 'OPTMON': [
-        'OPRAVG-OTS',
-        'OPRMAX-OTS_OPRMIN-OTS_-',
-        'OPTAVG-OTS',
-        'OPTMAX-OTS_OPTMIN-OTS_-',
-        "OPTAVG-OTS_OPRAVG-OTS_-"
-    ],
-           'ETH10G':[
-               "E-UAS", "E-ES", "E-CV", "E-INFRAMESERR_E-INFRAMES_/", "E-OUTFRAMESERR_E-OUTFRAMES_/","PCS-UAS", "PCS-ES", "PCS-CV"
-           ]}
 
 # --------------------------------------------------------------------------------
 # dataset 3
@@ -112,72 +78,152 @@ PM_list = {'OTM': ['OPRMAX-OCH_OPRMIN-OCH_-', 'OPRAVG-OCH', 'OTU-ES', 'OTU-QAVG'
 # --------------------------------------------------------------------------------
 # dataset 1
 
-data = pd.read_parquet(file_path)
-data = data.drop(['LASTOCCURRENCE'], axis=1)
-
-# Case all
-# devices = data[~data['GROUPBYKEY'].isin(drop_list)]
-# PM_list['ALL'] = data.columns[4:49]
 
 
-
-# Case one device
+# # data = data.rename(columns={
+# #                             'meta_NHP_ID':'ID',
+# #                             'far_end_client_signal_fail_unplanned':'ALARM',
+# #                             'meta_FACILITY':'GROUPBYKEY',
+# #                             'meta_STATUS':'LABEL'
+# #                             })
+#
+# try:
+#     data = data.drop(['LASTOCCURRENCE'], axis=1)
+# except:
+#     pass
+#
+# # Case all
+# # devices = data[~data['GROUPBYKEY'].isin(drop_list)]
+# # PM_list['ALL'] = data.columns[4:49]
+#
+# # apply the auto encoder here
+#
+# # Case one device
 # devices = data[data['GROUPBYKEY'].isin(dev_list[dev_type])]  # extract certain type of device
-devices = data[data['GROUPBYKEY'] == dev_type]
-# alarm = data['ALARM'].value_counts()
-# # focus on alarms that appear more than 50 times
-# alm_list = alarm[(alarm > 50) & (alarm < 10000)].index.tolist()
+# # devices = data[data['GROUPBYKEY'] == dev_type]
+# # alarm = data['ALARM'].value_counts()
+# # # focus on alarms that appear more than 50 times
+# # alm_list = alarm[(alarm > 50) & (alarm < 10000)].index.tolist()
+#
+#
 
-dev_count = devices['ID'].value_counts()
+# devices we are focusing on
+drop_list = ['CHMON', 'STM64', 'OC192', 'STTP', 'STM4', 'STM16', 'NMCMON', 'OC48', 'OC12', 'OC3', 'FLEX', 'RAMAN']
+# alarms we are focusing on
 
-dev_count = dev_count.drop(dev_count[dev_count < m + n].index).index.tolist()
+alarm_list = ['Loss Of Signal', None]
+label_list = ['IS', 'n/a', 'IS-ANR']
 
-# devices = devices[devices['ALARM'].isin(alm_list)]  # filter out devices with alarm out of the list
-devices = devices[devices['ID'].isin(dev_count)]  # filter out devices that has less data than the time window
-devices = devices.drop_duplicates()
-devices = devices.set_index(['ID', 'TIME']).sort_index().reset_index().fillna(0)
-devices['ALARM'] = devices['ALARM'].map(lambda x: 0 if x == 0 else 1)  # mask all alarms 1
 
-print(devices['ID'].value_counts())
-print(devices['ALARM'].value_counts())
+dev_dict = {
+            'OTM': ['OTM', 'OTM0', 'OTM1', 'OTM2', 'OTM3', 'OTM4', 'OTMC2'],
+            # 'OTM': ['OTM0', 'OTM1', 'OTM2', 'OTM3', 'OTM4'],
+            'ETH': ['ETH', 'ETHN', 'ETH10G', 'ETH40G', 'ETH100', 'ETH100G', 'ETHFlex'],
+            'OPTMON': ['OPTMON']
+}
+PM_dict = {'OTM': ['OPRMAX-OCH_OPRMIN-OCH_-', 'OPRAVG-OCH', 'OTU-ES', 'OTU-QAVG', 'OTU-QSTDEV'],
+           'ETH': [
+               'E-CV',
+               'E-ES',
+               'E-INFRAMESERR_E-INFRAMES_/',
+               'E-OUTFRAMESERR_E-OUTFRAMES_/',
+               'E-UAS',
+               'PCS-CV',
+               'PCS-ES',
+               'PCS-UAS'
+           ], 'OPTMON': [
+        'OPRAVG-OTS',
+        'OPRMAX-OTS_OPRMIN-OTS_-',
+        'OPTAVG-OTS',
+        'OPTMAX-OTS_OPTMIN-OTS_-',
+        "OPTAVG-OTS_OPRAVG-OTS_-"
+    ],
+           'ETH10G':[
+               "E-UAS", "E-ES", "E-CV", "E-INFRAMESERR_E-INFRAMES_/", "E-OUTFRAMESERR_E-OUTFRAMES_/","PCS-UAS", "PCS-ES", "PCS-CV"
+           ]}
 
-x = []
-y = []
-for idx in devices.index:
-    device_type = devices.loc[idx:idx + m + n - 1, 'GROUPBYKEY']
-    if device_type.nunique() != 1:  # make sure all devices in this window are the same
-        continue
 
-    m_labels = devices.loc[idx:idx + m - 1, 'LABEL']
-    n_labels = devices.loc[idx + m:idx + m + n - 1, 'LABEL']
-    if ~m_labels.isin(label_list).all():  # make sure m data are all in service
-        continue
+file_path = '/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_Network_Data_May13.parquet'
+# file_path = '/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_all_PMs_anon_no_CHMON_22_02_19_to_03_06_19_null_dropped.parquet'
+data = pd.read_parquet(file_path)
 
-    m_alarms = devices.loc[idx:idx + m - 1, 'ALARM']
-    if m_alarms.any():  # make sure m data are all normal
-        continue
+m = 3
+n = 2
+dev_type = 'ETH'
+device_list = dev_dict[dev_type]
+pm_list = PM_dict[dev_type]
 
-    if (devices.loc[idx + m:idx + m + n - 1, 'ALARM'].values.any()):
-        y.append([1])
+try:
+    data = data.drop(['LASTOCCURRENCE'], axis=1)
+except:
+    pass
+
+def slid_generate(m, n, data,label_list = None, pm_list = None, device_list=None,drop_list=None, alarm_list=None, all_devices = False, all_alarms = False):
+    if all_devices:
+        pm_list = data.columns[4:49]
+        devices = data[~data['GROUPBYKEY'].isin(drop_list)]
     else:
-        if (n_labels.isin(label_list).all()):  # if no alarm happens, then it's a normal sample and the labels should all be in service.
-            y.append([0])
-        else:
+        devices = data[data['GROUPBYKEY'].isin(device_list)]
+
+    if all_alarms:
+        pass
+    else:
+        devices = devices[devices['ALARM'].isin(alarm_list)]  # filter out devices with alarm out of the list
+
+    print(devices['GROUPBYKEY'].value_counts())  # print device count
+    dev_count = devices['ID'].value_counts()
+    dev_count = dev_count.drop(dev_count[dev_count < m + n].index).index.tolist()
+    devices = devices[devices['ID'].isin(dev_count)]  # filter out devices that has less data than the time window
+    devices = devices.drop_duplicates()
+    devices = devices.set_index(['ID', 'TIME']).sort_index().reset_index().fillna(0)
+    devices['ALARM'] = devices['ALARM'].map(lambda x: 0 if x == 0 else 1)  # mask all alarms 1
+
+    print(devices['ALARM'].value_counts())
+
+    x = []
+    y = []
+    for idx in devices.index:
+        device_type = devices.loc[idx:idx + m + n - 1, 'GROUPBYKEY']
+        if device_type.nunique() != 1:  # make sure all devices in this window are the same
             continue
 
-    x.append(devices.loc[idx:idx + m - 1, PM_list[dev_type]].values)
+        m_labels = devices.loc[idx:idx + m - 1, 'LABEL']
+        n_labels = devices.loc[idx + m:idx + m + n - 1, 'LABEL']
+        if ~m_labels.isin(label_list).all():  # make sure m data are all in service
+            continue
 
-    if idx % 10000 == 0:
-        print(idx)
+        m_alarms = devices.loc[idx:idx + m - 1, 'ALARM']
+        if m_alarms.any():  # make sure m data are all normal
+            continue
 
-    if idx + m + n == devices.index[-1]:
-        break
+        if (devices.loc[idx + m:idx + m + n - 1, 'ALARM'].values.any()):
+            y.append([1])
+        else:
+            if (n_labels.isin(
+                    label_list).all()):  # if no alarm happens, then it's a normal sample and the labels should all be in service.
+                y.append([0])
+            else:
+                continue
 
-X = np.expand_dims(x, 3)
-Y = np.array(y)
+        x.append(devices.loc[idx:idx + m - 1, pm_list].values)
+
+        if idx % 10000 == 0:
+            print(idx)
+
+        if idx + m + n == devices.index[-1]:
+            break
+
+    X = np.expand_dims(x, 3)
+    Y = np.array(y)
+
+    return X, Y
+# X,Y = slid_generate(3,2,data, label_list, pm_list, device_list,drop_list,alarm_list, False, False)
+X,Y = slid_generate(3,2,data, label_list, None, None,drop_list,alarm_list, True, True)
 
 import collections
 
 print(collections.Counter(Y.flatten()))
-np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_pms_3_partial_may.npy' % dev_type, X)
-np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_alarms_2days_may.npy' % dev_type, Y)
+np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_pms_3days_may_los.npy' % dev_type, X)
+np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_alarms_2days_may_los.npy' % dev_type, Y)
+
+
