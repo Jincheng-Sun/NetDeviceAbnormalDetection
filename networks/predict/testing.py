@@ -3,7 +3,7 @@ import sys
 sys.path.insert(0,'/home/oem/Projects/Kylearn')
 from examples.ciena.ciena_pred_dataset import pred_Dataset, pred_Dataset_2
 from visualization.draw_matrix import *
-
+import numpy as np
 
 device_type = 'ALL'
 # dataset = pred_Dataset_2(x_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_s_pms_3_partial_may.npy'%device_type,
@@ -25,4 +25,7 @@ tn = cm[0,0]
 fp = cm[0,1]
 fn = cm[1,0]
 fpr = fp/(fp+ tn)
+acc = (tp+tn)/(np.sum(cm))
+precision = tp/(tp + fp)
+recall = tp/(tp + fn)
 cm_analysis(cm, ['Normal', 'malfunction'], precision=True)

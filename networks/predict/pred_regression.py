@@ -8,7 +8,7 @@ import sys
 sys.path.insert(0,'/home/oem/Projects/Kylearn')
 from examples.ciena.ciena_pred_dataset import *
 from visualization.draw_matrix import *
-
+from metrics.metrics import fpr_metrics
 
 def bn_relu(layer, dropout=0, **params):
     layer = BatchNormalization()(layer)
@@ -62,13 +62,13 @@ def resnet_block(layer, filters, kernels, dropout, activation,
 
 '''dataset'''
 
-device_type = 'ALL'
-dataset = pred_Dataset_2(x_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_pms_3days_may.npy'%device_type,
-                    y_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_alarms_2days_may.npy'%device_type)
+device_type = 'ETH'
+dataset = pred_Dataset_2(x_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_s_pms_3_partial_may.npy'%device_type,
+                    y_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_s_alarms_2days_may.npy'%device_type)
 
 
 '''create model'''
-input = Input(shape=(3, 45, 1))
+input = Input(shape=(3, 8, 1))
 layer = Conv2D(filters=32,
                kernel_size=3,
                kernel_initializer='random_uniform',
@@ -119,5 +119,5 @@ results[results >= threshold] = 1
 results[results < threshold] = 0
 
 cm = cm_metrix(dataset.test_set['y'], results)
-
+fpr_metrics(cm)
 cm_analysis(cm, ['Normal', 'malfunction'], precision=True)
