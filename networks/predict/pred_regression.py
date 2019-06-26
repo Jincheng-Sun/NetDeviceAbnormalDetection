@@ -62,13 +62,13 @@ def resnet_block(layer, filters, kernels, dropout, activation,
 
 '''dataset'''
 
-device_type = 'ETH'
-dataset = pred_Dataset_2(x_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_s_pms_3_partial_may.npy'%device_type,
-                    y_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_s_alarms_2days_may.npy'%device_type)
+device_type = 'OPTMON'
+dataset = pred_Dataset_2(x_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_pms_partial_3days_may_los.npy'%device_type,
+                    y_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_alarms_2days_may_los.npy'%device_type)
 
 
 '''create model'''
-input = Input(shape=(3, 8, 1))
+input = Input(shape=(3, 5, 1))
 layer = Conv2D(filters=32,
                kernel_size=3,
                kernel_initializer='random_uniform',
@@ -109,7 +109,7 @@ model.fit(dataset.train_set['x'], dataset.train_set['y'],
           validation_data=(dataset.val_set['x'], dataset.val_set['y']),
           callbacks=[monitor])
 
-model.save('model_%s_s'%device_type)
+model.save('%s_s_partial_los'%device_type)
 
 # --------------------validation-------------------------
 pred = model.predict(dataset.test_set['x'])

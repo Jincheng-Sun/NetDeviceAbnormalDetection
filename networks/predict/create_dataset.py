@@ -1,8 +1,14 @@
 import pandas as pd
 import numpy as np
 import gc
+import sys
+import collections
 
+sys.path.insert(0,'/home/oem/Projects')
+from Kylearn.utils.log import log_down
 
+logfile = 'create_data_log'
+logger = log_down(logfile)
 gc.enable()
 
 
@@ -121,7 +127,7 @@ dev_dict = {
             'ETH': ['ETH', 'ETHN', 'ETH10G', 'ETH40G', 'ETH100', 'ETH100G', 'ETHFlex'],
             'OPTMON': ['OPTMON']
 }
-PM_dict = {'OTM': ['OPRMAX-OCH_OPRMIN-OCH_-', 'OPRAVG-OCH', 'OTU-ES', 'OTU-QAVG', 'OTU-QSTDEV'],
+PM_dict = {'OTM': ['OPRMAX-OCH_OPRMIN-OCH_-', 'OPRAVG-OCH', 'OTU-CV','OTU-ES', 'OTU-QAVG', 'OTU-QSTDEV'],
            'ETH': [
                'E-CV',
                'E-ES',
@@ -149,7 +155,7 @@ data = pd.read_parquet(file_path)
 
 m = 3
 n = 2
-dev_type = 'ETH'
+dev_type = 'OPTMON'
 device_list = dev_dict[dev_type]
 pm_list = PM_dict[dev_type]
 
@@ -159,26 +165,30 @@ except:
     pass
 
 def slid_generate(m, n, data,label_list = None, pm_list = None, device_list=None,drop_list=None, alarm_list=None, all_devices = False, all_alarms = False):
+    logger.info('Past day(s): %s Future day(s): %s'%(m, n))
     if all_devices:
         pm_list = data.columns[4:49]
         devices = data[~data['GROUPBYKEY'].isin(drop_list)]
+        logger.info('Device type: ALL devices except %s'%drop_list)
     else:
         devices = data[data['GROUPBYKEY'].isin(device_list)]
+        logger.info('Device type: %s'%device_list)
 
     if all_alarms:
-        pass
+        logger.info('ALARM: ALL')
     else:
         devices = devices[devices['ALARM'].isin(alarm_list)]  # filter out devices with alarm out of the list
-
-    print(devices['GROUPBYKEY'].value_counts())  # print device count
+        logger.info('ALARM: %s'%alarm_list)
+    logger.info('DEVICE COUNT')
+    logger.info('\n'+ str(devices['GROUPBYKEY'].value_counts()))  # print device count
     dev_count = devices['ID'].value_counts()
     dev_count = dev_count.drop(dev_count[dev_count < m + n].index).index.tolist()
     devices = devices[devices['ID'].isin(dev_count)]  # filter out devices that has less data than the time window
     devices = devices.drop_duplicates()
     devices = devices.set_index(['ID', 'TIME']).sort_index().reset_index().fillna(0)
     devices['ALARM'] = devices['ALARM'].map(lambda x: 0 if x == 0 else 1)  # mask all alarms 1
-
-    print(devices['ALARM'].value_counts())
+    logger.info('SAMPLE COUNT')
+    logger.info('\n'+ str(devices['ALARM'].value_counts()))
 
     x = []
     y = []
@@ -215,15 +225,14 @@ def slid_generate(m, n, data,label_list = None, pm_list = None, device_list=None
 
     X = np.expand_dims(x, 3)
     Y = np.array(y)
-
+    logger.info('DATA COUNT')
+    logger.info('\n'+ str(collections.Counter(Y.flatten())))
     return X, Y
-# X,Y = slid_generate(3,2,data, label_list, pm_list, device_list,drop_list,alarm_list, False, False)
-X,Y = slid_generate(3,2,data, label_list, None, None,drop_list,alarm_list, True, True)
+X,Y = slid_generate(3,2,data, label_list, pm_list, device_list,drop_list,alarm_list, False, False)
+# X,Y = slid_generate(3,2,data, label_list, None, None,drop_list,alarm_list, True, True)
 
-import collections
 
-print(collections.Counter(Y.flatten()))
-np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_pms_3days_may_los.npy' % dev_type, X)
+np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_pms_partial_3days_may_los.npy' % dev_type, X)
 np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_alarms_2days_may_los.npy' % dev_type, Y)
 
 
