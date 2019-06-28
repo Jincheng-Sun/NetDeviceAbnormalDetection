@@ -176,6 +176,7 @@ def slid_generate(m, n, data,label_list = None, pm_list = None, device_list=None
 
     if all_alarms:
         logger.info('ALARM: ALL')
+        logger.info('\n'+ str(devices['ALARM'].value_counts()))
     else:
         devices = devices[devices['ALARM'].isin(alarm_list)]  # filter out devices with alarm out of the list
         logger.info('ALARM: %s'%alarm_list)
@@ -228,7 +229,7 @@ def slid_generate(m, n, data,label_list = None, pm_list = None, device_list=None
     logger.info('DATA COUNT')
     logger.info('\n'+ str(collections.Counter(Y.flatten())))
     return X, Y
-X,Y = slid_generate(3,2,data, label_list, pm_list, device_list,drop_list,alarm_list, False, False)
+X,Y = slid_generate(3,2,data, label_list, pm_list, device_list,drop_list,alarm_list, False, all_alarms=True)
 # X,Y = slid_generate(3,2,data, label_list, None, None,drop_list,alarm_list, True, True)
 
 
