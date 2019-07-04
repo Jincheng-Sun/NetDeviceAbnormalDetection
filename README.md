@@ -7,19 +7,25 @@
 - networks
   - attention
     - create_dataset.py -- create dataset for attention framework
+    - attention_train.py -- train attention network with Resnet
   - meanTeacher -- Curious AI mean teacher framework (modified)
+    - framework -- mean-teacher framework
+    - generate_dataset.py -- generate dataset from raw data
     - dataset.py -- data loading class
-    - model.py -- mean teacher framework
-    - network.py -- tensorflow residual neural network v2
-    - train.py -- training model
+    - model.py -- mean-teacher model
+    - network.py -- residual network_v2 (modified from other's work)
+    - train.py -- training and testing flow
+    - implementation.py -- load tensorflow model and predict
   - predict
     - create_dataset.py -- create time series dataset using time window
     - pred_regression.py -- keras residual network, training on time series dataset
     - testing.py -- 2 days ahead predicting test
-  - Resnet.py -- keras residual network for present tense classification
-  - adaboost.py -- adaboost for present tense classification
-  - fnn.py -- fnn for present tense classification
-  - one_class_model.py -- one-class framework
+  - z_old_models
+    - Resnet.py -- keras residual network for present tense classification
+    - adaboost.py -- adaboost for present tense classification
+    - fnn.py -- fnn for present tense classification
+    - one_class_model.py -- one-class framework
+- processData -- the code is no longer effective
 - toolPackage
   - draw_cm.py -- result visualization
 - utils
@@ -35,6 +41,7 @@ Alarm -> 1 if there is an alarm else 0.
 ### Model
 - tensorflow
   - meanTeacher.py
+  - attention models
 - keras
   - Resnet.py
   - one_class_model.py
