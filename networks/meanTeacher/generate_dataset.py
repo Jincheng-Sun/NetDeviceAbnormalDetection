@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-# test = pd.read_csv('data/testset.csv')
+from sklearn.externals import joblib
+from keras.models import load_model
 
 # Devices we focus on
 dev_list = ['AMP', 'ETH', 'ETH10G', 'ETHN', 'ETTP', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
@@ -61,6 +62,29 @@ def mask_data(unlabeled_data):
     unlabeled_data['ALARM'] = -1
     return unlabeled_data
 
+# preprocessing flow in evaluation.ipynb
+min_max_scaler = joblib.load('encoders/Minmax_scaler')
+autoencoder = load_model('encoders/encoder_1layer_75dims')
+label_encoder = joblib.load('encoders/label_encoder')
+onehot_encoder = joblib.load('encoders/onehot_encoder')
+
+def preprocessing(data):
+    # drop useless columns
+    data = data.drop(['ID', 'TIME', 'LABEL'], axis=1)
+    # scaling the data into interval [0,1].
+    # Using min_max scaler change the center of input distribution,
+    # consider using StandardScaler with with_mean = False
+    data.iloc[:, 1:46] = min_max_scaler.transform(data.iloc[:, 1:46])
+    PMs = autoencoder.predict(data.iloc[:, 1:46])
+    GBK = label_encoder.transform(np.reshape(data['GROUPBYKEY'].tolist(), [-1, 1]))
+    GBK = np.reshape(GBK, [-1, 1])
+    GBK = onehot_encoder.transform(GBK)
+    GBK = pd.DataFrame(GBK.toarray())
+    X = np.concatenate([GBK, PMs], axis=1)
+    X = X.reshape(X.shape + [1])
+    y = data['ALARM']
+    return X, y
+
 
 
 # -------------------------------------------------------------------------------------------
@@ -89,6 +113,11 @@ trainset_2 = pd.concat([normal_unlabeled_eu, unlabeled_tk], axis=0)
 trainset = pd.concat([trainset_1, trainset_2], axis=0).sample(frac=1).reset_index()
 print(trainset['ALARM'].value_counts())
 # Apply the preprocessing flow in evaluation.ipynb after
+X_train, y_train = preprocessing(trainset)
+X_test, y_test = preprocessing(testset)
+# save data in npy format
+np.save('X_train_path.npy', X_train)
+
 
 # -------------------------------------------------------------------------------------------
 # 2. For present tense anomaly detection
@@ -116,3 +145,7 @@ trainset_2 = pd.concat([normal_unlabeled_eu, unlabeled_tk], axis=0)
 trainset = pd.concat([trainset_1, trainset_2], axis=0).sample(frac=1).reset_index()
 print(trainset['ALARM'].value_counts())
 # Apply the preprocessing flow in evaluation.ipynb after
+X_train, y_train = preprocessing(trainset)
+X_test, y_test = preprocessing(testset)
+# save data in npy format
+np.save('X_train_path.npy', X_train)
