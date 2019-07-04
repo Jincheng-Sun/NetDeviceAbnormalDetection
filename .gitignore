@@ -1,9 +1,8 @@
 #filepath
 data/
 models/
-model*
 utils/
-networks/meanTeacher/log/
+log*
 __pycache__/
 
 #ide files
