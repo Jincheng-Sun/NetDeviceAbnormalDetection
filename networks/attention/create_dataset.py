@@ -43,7 +43,7 @@ train_idx, test_idx = train_test_split(data.index, test_size=0.2, random_state=4
 train = data.loc[train_idx]
 test = data.loc[test_idx]
 
-def process(data):
+def process_attention(data):
     PMs = data.iloc[:, 1:46]
     PMs = scaler.transform(PMs)
     PMs = PMs.reshape([-1,45,1])
@@ -62,12 +62,39 @@ def process(data):
     alarm = ohe_2.transform(alarm).toarray()
     return PMs, device, alarm
 
-X1, dev1, y1 = process(train)
-np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_PMs_train',X1)
-np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_dev_train',dev1)
-np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_alm_train',y1)
-#
-X2, dev2, y2 = process(test)
-np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_PMs_test',X2)
-np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_dev_test',dev2)
-np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_alm_test',y2)
+def process_concat(data):
+    PMs = data.iloc[:, 1:46]
+    PMs = scaler.transform(PMs)
+
+    # device onehot-encoding
+    device = data['GROUPBYKEY']
+    device = le_1.transform(device)
+    device = device.reshape([-1,1])
+
+    device = ohe_1.transform(device).toarray()
+    features = np.concatenate([PMs, device], axis=1).reshape([-1,56,1])
+    # alarm label-to-number
+    alarm = data['ALARM']
+    alarm = le_2.transform(alarm)
+    alarm = alarm.reshape([-1,1])
+    alarm = ohe_2.transform(alarm).toarray()
+    return features, alarm
+
+
+# X1, dev1, y1 = process_attention(train)
+# np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_PMs_train',X1)
+# np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_dev_train',dev1)
+# np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_alm_train',y1)
+# #
+# X2, dev2, y2 = process_attention(test)
+# np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_PMs_test',X2)
+# np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_dev_test',dev2)
+# np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_alm_test',y2)
+
+X1, y1 = process_concat(train)
+np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_PMs_concat_train',X1)
+np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_alm_concat_train',y1)
+
+X2, y2 = process_concat(test)
+np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_PMs_concat_test',X2)
+np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_alm_concat_test',y2)
