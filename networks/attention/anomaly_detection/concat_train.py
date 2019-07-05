@@ -7,16 +7,16 @@ from CNN.cnn_network import Cnn_3layers
 from Attention.residual_network_1d import Resnet_1d
 import numpy as np
 
-dataset = Attn_dataset(feature_path='/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_PMs',
+dataset = Attn_dataset(feature_path='/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_PMs_concat',
                        dev_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_dev',
-                       label_path='/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_alm')
+                       label_path='/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_alm_concat')
 resnet_1d = Resnet_1d()
-model = Attn_model(ckpt_path='models/attn', tsboard_path='log/', network=resnet_1d,input_shape=[45, 1],num_classes=12,
-                   feature_num=45, dev_num=11, lr = 0.001, batch_size=100)
+model = CNN_model(ckpt_path='models/conc', tsboard_path='log/', network=resnet_1d,input_shape=[56, 1],num_classes=12,
+                   feature_num=56, dev_num=11, lr = 0.001, batch_size=100)
 model.initialize_variables()
 model.save_tensorboard_graph()
 model.train(dataset)
-# model.restore_checkpoint(9272)
+
 
 dev_list = ['AMP', 'ETH10G', 'ETHN', 'ETTP', 'OC192', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
 
@@ -25,10 +25,11 @@ alarm_list = ['Excessive Error Ratio', 'Frequency Out Of Range', 'GCC0 Link Fail
               'Loss Of Clock', 'Loss Of Frame', 'Loss Of Signal', 'OSC OSPF Adjacency Loss',
               'OTU Signal Degrade', 'Rx Power Out Of Range']
 
-prediction = model.get_prediction(dataset.test_set)
-accuracy = model.get_accuracy(dataset.test_set)
-
-# test_dev = np.diag(np.ones([12]))
-# attn1, attn2 = model.get_attn_matrix(test_dev)
-
-model.plot(prediction, dataset, alarm_list)
+# model.restore_checkpoint(9272)
+# prediction = model.get_prediction(dataset.test_set)
+# accuracy = model.get_accuracy(dataset.test_set)
+#
+# # test_dev = np.diag(np.ones([12]))
+# # attn1, attn2 = model.get_attn_matrix(test_dev)
+#
+# model.plot(prediction, dataset, alarm_list)
