@@ -6,8 +6,15 @@
   - cluster.py -- PCA clustering for visualize the input distribution
 - networks
   - attention
-    - create_dataset.py -- create dataset for attention framework
-    - attention_train.py -- train attention network with Resnet
+    - anomaly_detection
+      - attention_train.py -- train model with attention mechanism
+      - concat_train.py -- train model with concat of features
+      - create_dataset.py -- create dataset for training and testing
+    - classification
+      - attention_train.py -- train model with attention mechanism
+      - concat_train.py -- train model with concat of features
+      - create_dataset.py -- create dataset for training and testing
+    - results_process.py -- process and visualization of the results
   - meanTeacher -- Curious AI mean teacher framework (modified)
     - framework -- mean-teacher framework
     - generate_dataset.py -- generate dataset from raw data
