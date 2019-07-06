@@ -18,6 +18,31 @@ alarm_list = ['Excessive Error Ratio',
               'Remote Fault', 'Rx Power Out Of Range']
 state_list = ['IS', 'n/a', 'IS-ANR']
 
+def unify_to(data_obj, data_sub):
+    # data_sub will be convert to format of data_obj
+    # label dictionary
+    rep_list = {'CV-E': 'E-CV',
+                'CV-PCS':'PCS-CV',
+                'INFRAMESERR-E_INFRAMES-E_/': 'E-INFRAMESERR_E-INFRAMES_/',
+                'ES-PCS': 'PCS-ES',
+                'UAS-PCS': 'PCS-UAS',
+                'SPANLOSSMAX-OCH_SPANLOSSMIN-OCH_-': 'OCH-SPANLOSSMAX_OCH-SPANLOSSMIN_-',
+                'UAS-E': 'E-UAS',
+                'ES-E': 'S-ES',
+                'OUTFRAMESERR-E_OUTFRAMES-E_/': 'E-OUTFRAMESERR_E-OUTFRAMES_/',
+                'SPANLOSSAVG-OCH': 'OCH-SPANLOSSAVG'
+                }
+    # rename the columns
+    data_sub = data_sub.rename(columns=rep_list)
+
+    '''Unify the columns'''
+    listA = data_sub.columns.tolist()
+    listB = data_obj.columns.tolist()
+    diff = list(set(listB).difference(set(listA)))
+    diff_columns = pd.DataFrame(columns=diff)
+    data_sub = pd.concat([data_sub, diff_columns], axis=1)
+    data_sub = data_sub[data_obj.columns]
+    return data_obj, data_sub
 
 def keep_valid_data(raw_data):
     # keep data of certain devices
@@ -96,6 +121,8 @@ def preprocessing(data):
 raw_data_tk = pd.read_parquet('data/Tokyo_Network_Data_1Day.parquet')
 raw_data_eu = pd.read_parquet('data/Europe_Network_data.parquet')
 
+raw_data_eu, raw_data_tk = unify_to(raw_data_eu, raw_data_tk)
+
 raw_data_eu = keep_valid_data(raw_data_eu)
 # for classification, we only need the anomaly data and the unlabeled data
 anomaly_eu, _, normal_unlabeled_eu = split_and_drop(raw_data_eu)
@@ -127,6 +154,7 @@ np.save('X_train_path.npy', X_train)
 raw_data_tk = pd.read_parquet('data/Tokyo_Network_Data_1Day.parquet')
 raw_data_eu = pd.read_parquet('data/Europe_Network_data.parquet')
 
+raw_data_eu, raw_data_tk = unify_to(raw_data_eu, raw_data_tk)
 raw_data_eu = keep_valid_data(raw_data_eu)
 # for anomaly detection, we need the anomaly and normal data as well as the unlabeled data
 anomaly_eu, normal_labeled, normal_unlabeled_eu = split_and_drop(raw_data_eu)
