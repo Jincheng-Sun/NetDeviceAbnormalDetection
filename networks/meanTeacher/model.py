@@ -299,6 +299,12 @@ class Model:
         path = self.saver.save(self.session, self.checkpoint_path, global_step=self.global_step)
         LOG.info("Saved checkpoint: %r", path)
 
+    def save_model(self):
+        inputs = {"features" : self.features}
+        outputs = {"output" : self.output}
+        tf.saved_model.simple_save(session=self.session, export_dir=self.checkpoint_path,
+                                   inputs = inputs, outputs=outputs)
+
     def save_tensorboard_graph(self):
         self.writer = tf.summary.FileWriter(self.tensorboard_path)
         self.writer.add_graph(self.session.graph)
