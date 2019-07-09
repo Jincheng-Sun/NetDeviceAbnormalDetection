@@ -1,21 +1,22 @@
 import sys
 sys.path.insert(0,'/home/oem/Projects/Kylearn')
 from CNN.cnn_model import CNN_model
-from Attention.attn_model import Attn_model
-from Attention.attn_dataset import Attn_dataset
-from CNN.cnn_network import Cnn_3layers
+from CNN.cnn_dataset import Cnn_dataset
 from Attention.residual_network_1d import Resnet_1d
+from visualization.draw_matrix import *
+from visualization.draw_roc import plot_roc_curve
 import numpy as np
+from sklearn.metrics import roc_auc_score, roc_curve
 
-dataset = Attn_dataset(feature_path='/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_PMs_concat',
-                       dev_path= '/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_dev',
-                       label_path='/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_alm_concat')
+dataset = Cnn_dataset(feature_path='data/c_PMs',
+                      label_path='data/c_alm',
+                      out_num = 1)
 resnet_1d = Resnet_1d()
-model = CNN_model(ckpt_path='models/conc', tsboard_path='log/', network=resnet_1d,input_shape=[56, 1],num_classes=12,
-                   feature_num=56, dev_num=11, lr = 0.001, batch_size=100)
-model.initialize_variables()
-model.save_tensorboard_graph()
-model.train(dataset)
+model = CNN_model(ckpt_path='models/conc', tsboard_path='log/', network=resnet_1d,input_shape=[56, 1],num_classes=1,
+                   feature_num=56, dev_num=11, lr = 0.001, batch_size=100, regression = True)
+# model.initialize_variables()
+# model.save_tensorboard_graph()
+# model.train(dataset)
 
 
 dev_list = ['AMP', 'ETH10G', 'ETHN', 'ETTP', 'OC192', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
@@ -25,11 +26,33 @@ alarm_list = ['Excessive Error Ratio', 'Frequency Out Of Range', 'GCC0 Link Fail
               'Loss Of Clock', 'Loss Of Frame', 'Loss Of Signal', 'OSC OSPF Adjacency Loss',
               'OTU Signal Degrade', 'Rx Power Out Of Range']
 
-# model.restore_checkpoint(9272)
-# prediction = model.get_prediction(dataset.test_set)
-# accuracy = model.get_accuracy(dataset.test_set)
-#
-# # test_dev = np.diag(np.ones([12]))
-# # attn1, attn2 = model.get_attn_matrix(test_dev)
-#
-# model.plot(prediction, dataset, alarm_list)
+def metrics(threshold):
+    results = model.get_logits(dataset.test_set)
+    results[results >= threshold] = 1
+    results[results < threshold] = 0
+    cm = cm_metrix(dataset.test_set['y'], results)
+    tp = cm[1, 1]
+    tn = cm[0, 0]
+    fp = cm[0, 1]
+    fn = cm[1, 0]
+    fpr = fp / (fp + tn)
+    acc = (tp + tn) / (np.sum(cm))
+    precision = tp / (tp + fp)
+    recall = tp / (tp + fn)
+    return cm, fpr, acc, precision, recall
+
+def auc_roc():
+    proba = model.get_logits(dataset.test_set)
+    real = dataset.test_set['y']
+    auc = roc_auc_score(y_true=real, y_score=proba)
+    fprs, tprs, thresholds = roc_curve(y_true=real, y_score=proba)
+    return auc, fprs, tprs, thresholds
+
+
+model.restore_checkpoint(954)
+prediction = model.get_prediction(dataset.test_set)
+
+cm, fpr, acc, precision, recall = metrics(threshold=0.99)
+
+cm_analysis(cm, ['Normal', 'malfunction'], precision=True)
+

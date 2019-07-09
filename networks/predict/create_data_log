@@ -1,0 +1,12 @@
+2019-07-03 11:37:54,717 - INFO: Past day(s): 3 Future day(s): 2
+2019-07-03 11:37:55,202 - INFO: Device type: ['OPTMON']
+2019-07-03 11:37:55,202 - INFO: ALARM: ALL
+2019-07-03 11:37:55,226 - INFO: 
+Loss Of Signal                            203
+Gauge Threshold Crossing Alert Summary     33
+Protection Switch Complete - Revertive      4
+Name: ALARM, dtype: int64
+2019-07-03 11:37:55,226 - INFO: DEVICE COUNT
+2019-07-03 11:37:55,307 - INFO: 
+OPTMON    1850819
+Name: GROUPBYKEY, dtype: int64
