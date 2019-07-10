@@ -6,44 +6,52 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 import numpy as np
 
 data = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_Network_data.parquet')
-dev_drop_list = ['CHMON', 'STM64', 'STTP', 'STM4', 'STM16', 'OC48', 'OC12', 'OC3', 'RAMAN']
-alarm_list = ['Excessive Error Ratio', 'Frequency Out Of Range', 'GCC0 Link Failure',
-              'Gauge Threshold Crossing Alert Summary', 'Link Down', 'Local Fault',
-              'Loss Of Clock', 'Loss Of Frame', 'Loss Of Signal', 'OSC OSPF Adjacency Loss',
-              'OTU Signal Degrade', 'Rx Power Out Of Range']
+dev_list = ['AMP', 'ETH', 'ETH10G', 'ETHN', 'ETTP', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
+alarm_list = ['Excessive Error Ratio',  # 1
+              'Frequency Out Of Range',  # 2
+              'GCC0 Link Failure', 'Gauge Threshold Crossing Alert Summary',  # 4
+              'Link Down', 'Local Fault', 'Loss Of Clock', 'Loss Of Frame', 'Loss Of Signal',  # 9
+              'OSC OSPF Adjacency Loss', 'OTU Signal Degrade',  # 11
+              'Rx Power Out Of Range']  # 12
+state_list = ['IS', 'n/a', 'IS-ANR']
 
-print(data['ALARM'].value_counts())
-data = data[data['ALARM'].isin(alarm_list)]
-print(data['ALARM'].value_counts())
-
-print(data['GROUPBYKEY'].value_counts())
-data = data.drop(data[data['GROUPBYKEY'].isin(dev_drop_list)].index)
-print(data['GROUPBYKEY'].value_counts())
-
-data = data.fillna(0)
-
-data = data.drop(['ID','TIME','LABEL'], axis=1)
 scaler = StandardScaler(with_mean=False)
-scaler.fit(data.iloc[:, 1:46])
+scaler.fit(data.iloc[:, 4:49])
 le_1 = LabelEncoder()
-dev_keep_list = ['AMP', 'ETH10G', 'ETHN', 'ETTP', 'OC192', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
-# le_1.fit(['AMP', 'ETH10G', 'ETHN', 'ETTP', 'FLEX', 'OC192', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP'])
-le_1.fit(dev_keep_list)
-
+le_1.fit(dev_list)
 ohe_1 = OneHotEncoder()
-ohe_1.fit(np.arange(0,len(dev_keep_list)).reshape([-1,1]))
-
+ohe_1.fit(np.arange(0, len(dev_list)).reshape([-1, 1]))
 le_2 = LabelEncoder()
 le_2.fit(alarm_list)
 ohe_2 = OneHotEncoder()
-ohe_2.fit(np.arange(0,len(alarm_list)).reshape([-1,1]))
+ohe_2.fit(np.arange(0, len(alarm_list)).reshape([-1, 1]))
 
-# split
-train_idx, test_idx = train_test_split(data.index, test_size=0.2, random_state=42)
-train = data.loc[train_idx]
-test = data.loc[test_idx]
+def keep_valid_and_split(raw_data):
+    # keep data of certain devices
+    raw_data = raw_data[raw_data['GROUPBYKEY'].isin(dev_list)]
+
+    # keep data of certain alarms and normal data
+    raw_data = raw_data[raw_data['ALARM'].isin(alarm_list+[None])]
+    raw_data = raw_data.fillna(0)
+
+    # divide dataset into normal and anomaly group
+    normal = raw_data[raw_data['ALARM'] == 0]
+    anomaly = raw_data[raw_data['ALARM'] != 0]
+
+    print(normal.shape)
+    print(anomaly.shape)
+
+    # normal data should be 'in service'
+    normal = normal[normal['LABEL'].isin(state_list)]
+    # random sample same amount with anomaly data of normal data
+    # as labeled data, and the rest as unlabeled data.
+    normal_labeled, normal_unlabeled = train_test_split(
+        normal, train_size=anomaly.shape[0], random_state=42)
+
+    return anomaly, normal_labeled, normal_unlabeled
 
 def process_attention(data):
+    data = data.drop(['ID', 'TIME', 'LABEL'], axis=1)
     PMs = data.iloc[:, 1:46]
     PMs = scaler.transform(PMs)
     PMs = PMs.reshape([-1,45,1])
@@ -63,6 +71,7 @@ def process_attention(data):
     return PMs, device, alarm
 
 def process_concat(data):
+    data = data.drop(['ID', 'TIME', 'LABEL'], axis=1)
     PMs = data.iloc[:, 1:46]
     PMs = scaler.transform(PMs)
 
@@ -81,20 +90,23 @@ def process_concat(data):
     return features, alarm
 
 
-# X1, dev1, y1 = process_attention(train)
-# np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_PMs_train',X1)
-# np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_dev_train',dev1)
-# np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_alm_train',y1)
-# #
-# X2, dev2, y2 = process_attention(test)
-# np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_PMs_test',X2)
-# np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_dev_test',dev2)
-# np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_alm_test',y2)
+anomaly, _, _ = keep_valid_and_split(data)
+train, test = train_test_split(anomaly, test_size=0.2, random_state=42)
 
-X1, y1 = process_concat(train)
-np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_PMs_concat_train',X1)
-np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_alm_concat_train',y1)
+X1, dev1, y1 = process_attention(train)
+np.save('data/a_PMs_train',X1)
+np.save('data/a_dev_train',dev1)
+np.save('data/a_alm_train',y1)
+#
+X2, dev2, y2 = process_attention(test)
+np.save('data/a_PMs_test',X2)
+np.save('data/a_dev_test',dev2)
+np.save('data/a_alm_test',y2)
 
-X2, y2 = process_concat(test)
-np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_PMs_concat_test',X2)
-np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/attention/c_alm_concat_test',y2)
+# X1, y1 = process_concat(train)
+# np.save('data/c_PMs_train',X1)
+# np.save('data/c_alm_train',y1)
+#
+# X2, y2 = process_concat(test)
+# np.save('data/c_PMs_test',X2)
+# np.save('data/c_alm_test',y2)
