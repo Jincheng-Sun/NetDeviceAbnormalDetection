@@ -7,7 +7,7 @@ from evaluation.metrics import metrics_binary, auc_roc
 from visualization.draw_matrix import draw_confusion_matrix
 from visualization.draw_roc import plot_roc_curve
 import numpy as np
-
+threshold = 0.9999
 dataset = Attn_dataset(feature_path='data/a_PMs',
                        dev_path= 'data/a_dev',
                        label_path='data/a_alm',
@@ -15,7 +15,7 @@ dataset = Attn_dataset(feature_path='data/a_PMs',
 resnet_1d = Resnet_1d()
 model = Attn_model(ckpt_path='models/attn', tsboard_path='log/', network=resnet_1d,input_shape=[45, 1],
                    num_classes=1, feature_num=45, dev_num=11, lr=0.001, batch_size=100,
-                   regression=True, threshold=0.99)
+                   regression=True, threshold=threshold)
 # model.initialize_variables()
 # model.save_tensorboard_graph()
 # model.train(dataset)
@@ -28,7 +28,7 @@ auc, fprs, tprs, thresholds = auc_roc(y_pred=prediction, y_test=dataset.test_set
 plot_roc_curve(fprs, tprs, auc, x_axis=0.05)
 
 cm, fpr, acc, precision, recall = metrics_binary(
-    y_pred=prediction, y_test=dataset.test_set['y'],threshold=0.99)
+    y_pred=prediction, y_test=dataset.test_set['y'],threshold=threshold)
 
 draw_confusion_matrix(cm, ['Normal', 'malfunction'], precision=True)
 
