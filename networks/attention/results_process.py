@@ -28,10 +28,11 @@ alarm_list = ['Excessive Error Ratio', 'Frequency Out Of Range', 'GCC0 Link Fail
 def visualize_input_attention(matrix, dev_list, pm_list):
     attn_matrix = pd.DataFrame(data=matrix, index=dev_list, columns=pm_list)
     attn_matrix[attn_matrix == 1] = 0
+    # attn_matrix['sum'] = attn_matrix.sum(axis = 1)
+    # attn_matrix = attn_matrix[pm_list].div(attn_matrix['sum'], axis = 0)
+
     return attn_matrix
 
 def visualize_output_attention(matrix, dev_list, alarm_list):
     attn_matrix = pd.DataFrame(data=matrix, index=dev_list, columns=alarm_list)
-    attn_matrix[attn_matrix >= 0] = 1
-    attn_matrix[attn_matrix < 0] = 0
     return attn_matrix
