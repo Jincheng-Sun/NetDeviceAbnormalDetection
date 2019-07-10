@@ -36,3 +36,7 @@ def visualize_input_attention(matrix, dev_list, pm_list):
 def visualize_output_attention(matrix, dev_list, alarm_list):
     attn_matrix = pd.DataFrame(data=matrix, index=dev_list, columns=alarm_list)
     return attn_matrix
+
+def visualize_proba(proba, alarm_list):
+    proba_list = pd.DataFrame(data=proba, columns=alarm_list)
+    return proba_list
