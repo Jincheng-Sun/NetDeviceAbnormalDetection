@@ -14,14 +14,14 @@ class Dataset_classification(Dataset):
 
         self.train_set = np.zeros(X_train.shape[0], dtype=[
             ('x', np.float32, (X_train.shape[1:])),
-            ('y', np.int32, (y_train.shape[1]))
+            ('y', np.int32, ([1]))
         ])
         self.train_set['x'] = X_train
         self.train_set['y'] = y_train
 
         self.test_set = np.zeros(X_test.shape[0], dtype=[
             ('x', np.float32, (X_test.shape[1:])),
-            ('y', np.int32, (y_test.shape[1]))
+            ('y', np.int32, ([1]))
         ])
         self.test_set['x'] = X_test
         self.test_set['y'] = y_test

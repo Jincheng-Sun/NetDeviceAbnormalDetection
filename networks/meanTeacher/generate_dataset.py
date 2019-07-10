@@ -118,63 +118,69 @@ def preprocessing(data):
 #    we need both labeled data (from Europe dataset) and unlabeled data (from Tokyo dataset).
 # -------------------------------------------------------------------------------------------
 
-# # load Tokyo and Europe dataset
-# raw_data_tk = pd.read_parquet('data/Tokyo_Network_Data_1Day.parquet')
-# raw_data_eu = pd.read_parquet('data/Europe_Network_data.parquet')
-#
-# raw_data_eu, raw_data_tk = unify_to(raw_data_eu, raw_data_tk)
-#
-# raw_data_eu = keep_valid_data(raw_data_eu)
-# # for classification, we only need the anomaly data and the unlabeled data
-# anomaly_eu, _, normal_unlabeled_eu = split_and_drop(raw_data_eu)
-# anomaly_eu = label_data(anomaly_eu, is_classification=True)
-# normal_unlabeled_eu = mask_data(normal_unlabeled_eu)
-# # take all the Tokyo data as unlabeled data
-# raw_data_tk = keep_valid_data(raw_data_tk)
-# unlabeled_tk = mask_data(raw_data_tk)
-# # create dataset
-# # split anomaly data, keep the second part as testset since we don't need unlabeled data for testing
-# trainset_1, testset= train_test_split(anomaly_eu, test_size=0.2, random_state=22)
-# # combine the two unlabeled data partition
-# trainset_2 = pd.concat([normal_unlabeled_eu, unlabeled_tk], axis=0)
-# # combine and shuffle the dataset
-# trainset = pd.concat([trainset_1, trainset_2], axis=0, ignore_index=True).sample(frac=1)
-# print(trainset['ALARM'].value_counts())
-# # Apply the preprocessing flow in evaluation.ipynb after
-# X_train, y_train = preprocessing(trainset)
-# X_test, y_test = preprocessing(testset)
+# load Tokyo and Europe dataset
+raw_data_tk = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Tokyo_Network_Data_1Day.parquet')
+raw_data_eu = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_Network_data.parquet')
+
+raw_data_eu, raw_data_tk = unify_to(raw_data_eu, raw_data_tk)
+
+raw_data_eu = keep_valid_data(raw_data_eu)
+# for classification, we only need the anomaly data and the unlabeled data
+anomaly_eu, _, normal_unlabeled_eu = split_and_drop(raw_data_eu)
+anomaly_eu = label_data(anomaly_eu, is_classification=True)
+normal_unlabeled_eu = mask_data(normal_unlabeled_eu)
+# take all the Tokyo data as unlabeled data
+raw_data_tk = keep_valid_data(raw_data_tk)
+unlabeled_tk = mask_data(raw_data_tk)
+# create dataset
+# split anomaly data, keep the second part as testset since we don't need unlabeled data for testing
+trainset_1, testset= train_test_split(anomaly_eu, test_size=0.2, random_state=22)
+# combine the two unlabeled data partition
+trainset_2 = pd.concat([normal_unlabeled_eu, unlabeled_tk], axis=0)
+# combine and shuffle the dataset
+trainset = pd.concat([trainset_1, trainset_2], axis=0, ignore_index=True).sample(frac=1)
+print(trainset['ALARM'].value_counts())
+# Apply the preprocessing flow in evaluation.ipynb after
+X_train, y_train = preprocessing(trainset)
+X_test, y_test = preprocessing(testset)
 # save data in npy format
-# np.save('X_train_path.npy', X_train)
+np.save('classification_X_train.npy', X_train)
+np.save('classification_y_train.npy', y_train)
+np.save('classification_X_test.npy', X_test)
+np.save('classification_y_test.npy', y_test)
 
 
 # -------------------------------------------------------------------------------------------
 # 2. For present tense anomaly detection
 # -------------------------------------------------------------------------------------------
 
-# load Tokyo and Europe dataset
-raw_data_tk = pd.read_parquet('data/Tokyo_Network_Data_1Day.parquet')
-raw_data_eu = pd.read_parquet('data/Europe_Network_data.parquet')
-
-raw_data_eu, raw_data_tk = unify_to(raw_data_eu, raw_data_tk)
-raw_data_eu = keep_valid_data(raw_data_eu)
-# for anomaly detection, we need the anomaly and normal data as well as the unlabeled data
-anomaly_eu, normal_labeled, normal_unlabeled_eu = split_and_drop(raw_data_eu)
-anomaly_eu = label_data(anomaly_eu, is_classification=False)
-normal_unlabeled_eu = mask_data(normal_unlabeled_eu)
-# take all the Tokyo data as unlabeled data
-raw_data_tk = keep_valid_data(raw_data_tk)
-unlabeled_tk = mask_data(raw_data_tk)
-# create dataset
-# combine anomaly and equal amount of normal data, and split
-trainset_1, testset= train_test_split(
-    pd.concat([anomaly_eu, normal_labeled], axis=0), test_size=0.2, random_state=22)
-# combine the two unlabeled data partition
-trainset_2 = pd.concat([normal_unlabeled_eu, unlabeled_tk], axis=0)
-# combine and shuffle the dataset
-trainset = pd.concat([trainset_1, trainset_2], axis=0).sample(frac=1)
-print(trainset['ALARM'].value_counts())
-# Apply the preprocessing flow in evaluation.ipynb after
-X_train, y_train = preprocessing(trainset)
-X_test, y_test = preprocessing(testset)
-# save data in npy format
-# np.save('X_train_path.npy', X_train)
+# # load Tokyo and Europe dataset
+# raw_data_tk = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Tokyo_Network_Data_1Day.parquet')
+# raw_data_eu = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_Network_data.parquet')
+#
+# raw_data_eu, raw_data_tk = unify_to(raw_data_eu, raw_data_tk)
+# raw_data_eu = keep_valid_data(raw_data_eu)
+# # for anomaly detection, we need the anomaly and normal data as well as the unlabeled data
+# anomaly_eu, normal_labeled, normal_unlabeled_eu = split_and_drop(raw_data_eu)
+# anomaly_eu = label_data(anomaly_eu, is_classification=False)
+# normal_unlabeled_eu = mask_data(normal_unlabeled_eu)
+# # take all the Tokyo data as unlabeled data
+# raw_data_tk = keep_valid_data(raw_data_tk)
+# unlabeled_tk = mask_data(raw_data_tk)
+# # create dataset
+# # combine anomaly and equal amount of normal data, and split
+# trainset_1, testset= train_test_split(
+#     pd.concat([anomaly_eu, normal_labeled], axis=0), test_size=0.2, random_state=22)
+# # combine the two unlabeled data partition
+# trainset_2 = pd.concat([normal_unlabeled_eu, unlabeled_tk], axis=0)
+# # combine and shuffle the dataset
+# trainset = pd.concat([trainset_1, trainset_2], axis=0).sample(frac=1)
+# print(trainset['ALARM'].value_counts())
+# # Apply the preprocessing flow in evaluation.ipynb after
+# X_train, y_train = preprocessing(trainset)
+# X_test, y_test = preprocessing(testset)
+# # save data in npy format
+# np.save('anomaly_X_train.npy', X_train)
+# np.save('anomaly_y_train.npy', y_train)
+# np.save('anomaly_X_test.npy', X_test)
+# np.save('anomaly_y_test.npy', y_test)
