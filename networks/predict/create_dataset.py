@@ -194,16 +194,17 @@ def slid_generate(m, n, data,label_list = None, pm_list = None, device_list=None
     logger.info('SAMPLE COUNT')
     logger.info('\n'+ str(devices['ALARM'].value_counts()))
 
-x = []
-y = []
-def get_sliding_windows(dataFrame, windowSize, returnAs2D = False):
-    stride0, stride1 = dataFrame.values.strides
+    x = []
+    y = []
+    def get_sliding_windows(dataFrame, windowSize, returnAs2D = False):
+        stride0, stride1 = dataFrame.values.strides
         m, n = dataFrame.shape
         output = strided(dataFrame, shape = (m - windowSize + 1, windowSize, n), strides = (stride0, stride0, stride1))
         if returnAs2D == 1:
             return output.reshape(dataFrame.shape[0] - windowSize + 1, -1)
-    else:
-        return output
+        else:
+            return output
+    
     find = lambda searchList, elem: [[i for i, x in enumerate(searchList) if x == e] for e in elem]
     indices = functools.reduce(operator.iconcat, find(devices.columns, PM_dict[dev_type]), [])
     devices2 = get_sliding_windows(devices[:-1], 5)
@@ -250,16 +251,16 @@ def get_sliding_windows(dataFrame, windowSize, returnAs2D = False):
 #        if idx + m + n == devices.index[-1]:
 #            break
 
-X = np.expand_dims(x, 3)
-Y = np.array(y)
-logger.info('DATA COUNT')
-logger.info('\n'+ str(collections.Counter(Y.flatten())))
-return X, Y
+    X = np.expand_dims(x, 3)
+    Y = np.array(y)
+    logger.info('DATA COUNT')
+    logger.info('\n'+ str(collections.Counter(Y.flatten())))
+    return X, Y
 X,Y = slid_generate(3,2,data, label_list, pm_list, device_list,drop_list,alarm_list, False, all_alarms=True)
 # X,Y = slid_generate(3,2,data, label_list, None, None,drop_list,alarm_list, True, True)
-
+print (X.shape)
+print(Y.shape)
 
 np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_pms_partial_3days_may_los.npy' % dev_type, X)
 np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_alarms_2days_may_los.npy' % dev_type, Y)
-
 
