@@ -3,6 +3,9 @@ import numpy as np
 import gc
 import sys
 import collections
+from numpy.lib.stride_tricks import as_strided as strided
+import functools
+import operator
 
 sys.path.insert(0,'/home/oem/Projects')
 from Kylearn.utils.log import log_down
@@ -122,31 +125,31 @@ label_list = ['IS', 'n/a', 'IS-ANR']
 
 
 dev_dict = {
-            'OTM': ['OTM', 'OTM0', 'OTM1', 'OTM2', 'OTM3', 'OTM4', 'OTMC2'],
-            # 'OTM': ['OTM0', 'OTM1', 'OTM2', 'OTM3', 'OTM4'],
-            'ETH': ['ETH', 'ETHN', 'ETH10G', 'ETH40G', 'ETH100', 'ETH100G', 'ETHFlex'],
-            'OPTMON': ['OPTMON']
+    'OTM': ['OTM', 'OTM0', 'OTM1', 'OTM2', 'OTM3', 'OTM4', 'OTMC2'],
+    # 'OTM': ['OTM0', 'OTM1', 'OTM2', 'OTM3', 'OTM4'],
+    'ETH': ['ETH', 'ETHN', 'ETH10G', 'ETH40G', 'ETH100', 'ETH100G', 'ETHFlex'],
+        'OPTMON': ['OPTMON']
 }
 PM_dict = {'OTM': ['OPRMAX-OCH_OPRMIN-OCH_-', 'OPRAVG-OCH', 'OTU-CV','OTU-ES', 'OTU-QAVG', 'OTU-QSTDEV'],
-           'ETH': [
-               'E-CV',
-               'E-ES',
-               'E-INFRAMESERR_E-INFRAMES_/',
-               'E-OUTFRAMESERR_E-OUTFRAMES_/',
-               'E-UAS',
-               'PCS-CV',
-               'PCS-ES',
-               'PCS-UAS'
-           ], 'OPTMON': [
-        'OPRAVG-OTS',
-        'OPRMAX-OTS_OPRMIN-OTS_-',
-        'OPTAVG-OTS',
-        'OPTMAX-OTS_OPTMIN-OTS_-',
-        "OPTAVG-OTS_OPRAVG-OTS_-"
-    ],
-           'ETH10G':[
-               "E-UAS", "E-ES", "E-CV", "E-INFRAMESERR_E-INFRAMES_/", "E-OUTFRAMESERR_E-OUTFRAMES_/","PCS-UAS", "PCS-ES", "PCS-CV"
-           ]}
+    'ETH': [
+            'E-CV',
+            'E-ES',
+            'E-INFRAMESERR_E-INFRAMES_/',
+            'E-OUTFRAMESERR_E-OUTFRAMES_/',
+            'E-UAS',
+            'PCS-CV',
+            'PCS-ES',
+            'PCS-UAS'
+            ], 'OPTMON': [
+                          'OPRAVG-OTS',
+                          'OPRMAX-OTS_OPRMIN-OTS_-',
+                          'OPTAVG-OTS',
+                          'OPTMAX-OTS_OPTMIN-OTS_-',
+                          "OPTAVG-OTS_OPRAVG-OTS_-"
+                          ],
+        'ETH10G':[
+                  "E-UAS", "E-ES", "E-CV", "E-INFRAMESERR_E-INFRAMES_/", "E-OUTFRAMESERR_E-OUTFRAMES_/","PCS-UAS", "PCS-ES", "PCS-CV"
+                  ]}
 
 
 file_path = '/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_Network_Data_May13.parquet'
@@ -173,7 +176,7 @@ def slid_generate(m, n, data,label_list = None, pm_list = None, device_list=None
     else:
         devices = data[data['GROUPBYKEY'].isin(device_list)]
         logger.info('Device type: %s'%device_list)
-
+    
     if all_alarms:
         logger.info('ALARM: ALL')
         logger.info('\n'+ str(devices['ALARM'].value_counts()))
@@ -191,44 +194,67 @@ def slid_generate(m, n, data,label_list = None, pm_list = None, device_list=None
     logger.info('SAMPLE COUNT')
     logger.info('\n'+ str(devices['ALARM'].value_counts()))
 
-    x = []
-    y = []
-    for idx in devices.index:
-        device_type = devices.loc[idx:idx + m + n - 1, 'GROUPBYKEY']
-        if device_type.nunique() != 1:  # make sure all devices in this window are the same
-            continue
+x = []
+y = []
+def get_sliding_windows(dataFrame, windowSize, returnAs2D = False):
+    stride0, stride1 = dataFrame.values.strides
+        m, n = dataFrame.shape
+        output = strided(dataFrame, shape = (m - windowSize + 1, windowSize, n), strides = (stride0, stride0, stride1))
+        if returnAs2D == 1:
+            return output.reshape(dataFrame.shape[0] - windowSize + 1, -1)
+    else:
+        return output
+    find = lambda searchList, elem: [[i for i, x in enumerate(searchList) if x == e] for e in elem]
+    indices = functools.reduce(operator.iconcat, find(devices.columns, PM_dict[dev_type]), [])
+    devices2 = get_sliding_windows(devices[:-1], 5)
+    for i in devices2:
+        if (i[0][3] == i[1][3] == i[2][3] == i[3][3] == i[4][3]):
+            if (np.isin((i[0][2], i[1][2], i[2][2]), label_list)).all():
+                if(i[0][49] == 0 and i[1][49] == 0 and i[2][49] == 0):
+                    if(i[3][49] or i[4][49]):
+                        y.append([1])
+                    else:
+                        if (np.isin((i[3][2], i[4][2]), label_list).all()):
+                            y.append([0])
+                        else:
+                            continue
+                    x.append([np.take(i[0], indices), np.take(i[1], indices), np.take(i[2], indices)])
+#    for idx in devices.index:
+#        device_type = devices.loc[idx:idx + m + n - 1, 'GROUPBYKEY']
+#        if device_type.nunique() != 1:  # make sure all devices in this window are the same
+#            continue
+#
+#        m_labels = devices.loc[idx:idx + m - 1, 'LABEL']
+#        n_labels = devices.loc[idx + m:idx + m + n - 1, 'LABEL']
+#        if ~m_labels.isin(label_list).all():  # make sure m data are all in service
+#            continue
+#
+#        m_alarms = devices.loc[idx:idx + m - 1, 'ALARM']
+#        if m_alarms.any():  # make sure m data are all normal
+#            continue
+#
+#        if (devices.loc[idx + m:idx + m + n - 1, 'ALARM'].values.any()):
+#            y.append([1])
+#        else:
+#            if (n_labels.isin(
+#                    label_list).all()):  # if no alarm happens, then it's a normal sample and the labels should all be in service.
+#                y.append([0])
+#            else:
+#                continue
+#
+#        x.append(devices.loc[idx:idx + m - 1, pm_list].values)
+#
+#        if idx % 10000 == 0:
+#            print(idx)
+#
+#        if idx + m + n == devices.index[-1]:
+#            break
 
-        m_labels = devices.loc[idx:idx + m - 1, 'LABEL']
-        n_labels = devices.loc[idx + m:idx + m + n - 1, 'LABEL']
-        if ~m_labels.isin(label_list).all():  # make sure m data are all in service
-            continue
-
-        m_alarms = devices.loc[idx:idx + m - 1, 'ALARM']
-        if m_alarms.any():  # make sure m data are all normal
-            continue
-
-        if (devices.loc[idx + m:idx + m + n - 1, 'ALARM'].values.any()):
-            y.append([1])
-        else:
-            if (n_labels.isin(
-                    label_list).all()):  # if no alarm happens, then it's a normal sample and the labels should all be in service.
-                y.append([0])
-            else:
-                continue
-
-        x.append(devices.loc[idx:idx + m - 1, pm_list].values)
-
-        if idx % 10000 == 0:
-            print(idx)
-
-        if idx + m + n == devices.index[-1]:
-            break
-
-    X = np.expand_dims(x, 3)
-    Y = np.array(y)
-    logger.info('DATA COUNT')
-    logger.info('\n'+ str(collections.Counter(Y.flatten())))
-    return X, Y
+X = np.expand_dims(x, 3)
+Y = np.array(y)
+logger.info('DATA COUNT')
+logger.info('\n'+ str(collections.Counter(Y.flatten())))
+return X, Y
 X,Y = slid_generate(3,2,data, label_list, pm_list, device_list,drop_list,alarm_list, False, all_alarms=True)
 # X,Y = slid_generate(3,2,data, label_list, None, None,drop_list,alarm_list, True, True)
 
