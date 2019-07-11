@@ -258,8 +258,6 @@ def slid_generate(m, n, data,label_list = None, pm_list = None, device_list=None
     return X, Y
 X,Y = slid_generate(3,2,data, label_list, pm_list, device_list,drop_list,alarm_list, False, all_alarms=True)
 # X,Y = slid_generate(3,2,data, label_list, None, None,drop_list,alarm_list, True, True)
-print (X.shape)
-print(Y.shape)
 
 np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_pms_partial_3days_may_los.npy' % dev_type, X)
 np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_alarms_2days_may_los.npy' % dev_type, Y)
