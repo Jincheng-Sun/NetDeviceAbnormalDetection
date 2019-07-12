@@ -3,6 +3,9 @@ import numpy as np
 import gc
 import sys
 import collections
+from numpy.lib.stride_tricks import as_strided as strided
+import functools
+import operator
 
 sys.path.insert(0,'/home/oem/Projects')
 from Kylearn.utils.log import log_down
@@ -122,31 +125,31 @@ label_list = ['IS', 'n/a', 'IS-ANR']
 
 
 dev_dict = {
-            'OTM': ['OTM', 'OTM0', 'OTM1', 'OTM2', 'OTM3', 'OTM4', 'OTMC2'],
-            # 'OTM': ['OTM0', 'OTM1', 'OTM2', 'OTM3', 'OTM4'],
-            'ETH': ['ETH', 'ETHN', 'ETH10G', 'ETH40G', 'ETH100', 'ETH100G', 'ETHFlex'],
-            'OPTMON': ['OPTMON']
+    'OTM': ['OTM', 'OTM0', 'OTM1', 'OTM2', 'OTM3', 'OTM4', 'OTMC2'],
+    # 'OTM': ['OTM0', 'OTM1', 'OTM2', 'OTM3', 'OTM4'],
+    'ETH': ['ETH', 'ETHN', 'ETH10G', 'ETH40G', 'ETH100', 'ETH100G', 'ETHFlex'],
+        'OPTMON': ['OPTMON']
 }
 PM_dict = {'OTM': ['OPRMAX-OCH_OPRMIN-OCH_-', 'OPRAVG-OCH', 'OTU-CV','OTU-ES', 'OTU-QAVG', 'OTU-QSTDEV'],
-           'ETH': [
-               'E-CV',
-               'E-ES',
-               'E-INFRAMESERR_E-INFRAMES_/',
-               'E-OUTFRAMESERR_E-OUTFRAMES_/',
-               'E-UAS',
-               'PCS-CV',
-               'PCS-ES',
-               'PCS-UAS'
-           ], 'OPTMON': [
-        'OPRAVG-OTS',
-        'OPRMAX-OTS_OPRMIN-OTS_-',
-        'OPTAVG-OTS',
-        'OPTMAX-OTS_OPTMIN-OTS_-',
-        "OPTAVG-OTS_OPRAVG-OTS_-"
-    ],
-           'ETH10G':[
-               "E-UAS", "E-ES", "E-CV", "E-INFRAMESERR_E-INFRAMES_/", "E-OUTFRAMESERR_E-OUTFRAMES_/","PCS-UAS", "PCS-ES", "PCS-CV"
-           ]}
+    'ETH': [
+            'E-CV',
+            'E-ES',
+            'E-INFRAMESERR_E-INFRAMES_/',
+            'E-OUTFRAMESERR_E-OUTFRAMES_/',
+            'E-UAS',
+            'PCS-CV',
+            'PCS-ES',
+            'PCS-UAS'
+            ], 'OPTMON': [
+                          'OPRAVG-OTS',
+                          'OPRMAX-OTS_OPRMIN-OTS_-',
+                          'OPTAVG-OTS',
+                          'OPTMAX-OTS_OPTMIN-OTS_-',
+                          "OPTAVG-OTS_OPRAVG-OTS_-"
+                          ],
+        'ETH10G':[
+                  "E-UAS", "E-ES", "E-CV", "E-INFRAMESERR_E-INFRAMES_/", "E-OUTFRAMESERR_E-OUTFRAMES_/","PCS-UAS", "PCS-ES", "PCS-CV"
+                  ]}
 
 
 file_path = '/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_Network_Data_May13.parquet'
@@ -155,7 +158,7 @@ data = pd.read_parquet(file_path)
 
 m = 3
 n = 2
-dev_type = 'OPTMON'
+dev_type = 'ETH'
 device_list = dev_dict[dev_type]
 pm_list = PM_dict[dev_type]
 
@@ -173,7 +176,7 @@ def slid_generate(m, n, data,label_list = None, pm_list = None, device_list=None
     else:
         devices = data[data['GROUPBYKEY'].isin(device_list)]
         logger.info('Device type: %s'%device_list)
-
+    
     if all_alarms:
         logger.info('ALARM: ALL')
         logger.info('\n'+ str(devices['ALARM'].value_counts()))
@@ -191,49 +194,43 @@ def slid_generate(m, n, data,label_list = None, pm_list = None, device_list=None
     logger.info('SAMPLE COUNT')
     logger.info('\n'+ str(devices['ALARM'].value_counts()))
 
-    x = []
-    y = []
-    for idx in devices.index:
-        device_type = devices.loc[idx:idx + m + n - 1, 'GROUPBYKEY']
-        if device_type.nunique() != 1:  # make sure all devices in this window are the same
-            continue
-
-        m_labels = devices.loc[idx:idx + m - 1, 'LABEL']
-        n_labels = devices.loc[idx + m:idx + m + n - 1, 'LABEL']
-        if ~m_labels.isin(label_list).all():  # make sure m data are all in service
-            continue
-
-        m_alarms = devices.loc[idx:idx + m - 1, 'ALARM']
-        if m_alarms.any():  # make sure m data are all normal
-            continue
-
-        if (devices.loc[idx + m:idx + m + n - 1, 'ALARM'].values.any()):
-            y.append([1])
+    def get_sliding_windows(dataFrame, windowSize, returnAs2D = False):
+        stride0, stride1 = dataFrame.values.strides
+        rows, columns = dataFrame.shape
+        output = strided(dataFrame, shape = (rows - windowSize + 1, windowSize, columns), strides = (stride0, stride0, stride1))
+        if returnAs2D == 1:
+            return output.reshape(dataFrame.shape[0] - windowSize + 1, -1)
         else:
-            if (n_labels.isin(
-                    label_list).all()):  # if no alarm happens, then it's a normal sample and the labels should all be in service.
-                y.append([0])
-            else:
-                continue
+            return output
 
-        x.append(devices.loc[idx:idx + m - 1, pm_list].values)
+    def mask_list(i):
+        # If m+n data do not have the same device type, return False
+        if(len(set(i[0:m + n, 3])) != 1):
+            return False
+        # If m data are not all in service, return False
+        elif(~np.isin(i[0:m, 2], label_list).all()):
+            return False
+        # If any of m data is an anomaly instance, return False
+        elif(i[0:m, 49].any()):
+            return False
+        # If i doesn't mach any of above, return True
+        else:
+            return True
 
-        if idx % 10000 == 0:
-            print(idx)
+    def label_data(i):
+        # If any of the n data is an anomaly instance, return 1
+        if(i[m:m+n, 49].any()):
+            return 1
+        else:
+            return 0
+    devices = get_sliding_windows(devices[:-1], m + n)
+    mask = [mask_list(i) for i in devices]
 
-        if idx + m + n == devices.index[-1]:
-            break
+    new = devices[mask]
+    label = [label_data(i) for i in new]
+    assert new.shape[0] == len(label)
+    return new, label
 
-    X = np.expand_dims(x, 3)
-    Y = np.array(y)
-    logger.info('DATA COUNT')
-    logger.info('\n'+ str(collections.Counter(Y.flatten())))
-    return X, Y
-X,Y = slid_generate(3,2,data, label_list, pm_list, device_list,drop_list,alarm_list, False, all_alarms=True)
-# X,Y = slid_generate(3,2,data, label_list, None, None,drop_list,alarm_list, True, True)
-
-
-np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_pms_partial_3days_may_los.npy' % dev_type, X)
-np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_alarms_2days_may_los.npy' % dev_type, Y)
+X,Y= slid_generate(3,2,data, label_list, pm_list, device_list,drop_list,alarm_list, False, all_alarms=True)
 
 

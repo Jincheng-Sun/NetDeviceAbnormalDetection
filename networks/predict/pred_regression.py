@@ -68,7 +68,7 @@ dataset = pred_Dataset_2(x_path= '/home/oem/Projects/NetDeviceAbnormalDetection/
 
 
 '''create model'''
-input = Input(shape=(3, 5, 1))
+input = Input(shape=(3, 4, 1))
 layer = Conv2D(filters=32,
                kernel_size=3,
                kernel_initializer='random_uniform',

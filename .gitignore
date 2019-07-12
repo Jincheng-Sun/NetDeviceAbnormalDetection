@@ -2,6 +2,7 @@
 data/
 models/
 utils/
+encoders/
 log*
 __pycache__/
 
