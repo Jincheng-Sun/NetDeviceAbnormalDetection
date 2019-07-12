@@ -158,7 +158,7 @@ data = pd.read_parquet(file_path)
 
 m = 3
 n = 2
-dev_type = 'OPTMON'
+dev_type = 'ETH'
 device_list = dev_dict[dev_type]
 pm_list = PM_dict[dev_type]
 
@@ -194,71 +194,43 @@ def slid_generate(m, n, data,label_list = None, pm_list = None, device_list=None
     logger.info('SAMPLE COUNT')
     logger.info('\n'+ str(devices['ALARM'].value_counts()))
 
-    x = []
-    y = []
     def get_sliding_windows(dataFrame, windowSize, returnAs2D = False):
         stride0, stride1 = dataFrame.values.strides
-        m, n = dataFrame.shape
-        output = strided(dataFrame, shape = (m - windowSize + 1, windowSize, n), strides = (stride0, stride0, stride1))
+        rows, columns = dataFrame.shape
+        output = strided(dataFrame, shape = (rows - windowSize + 1, windowSize, columns), strides = (stride0, stride0, stride1))
         if returnAs2D == 1:
             return output.reshape(dataFrame.shape[0] - windowSize + 1, -1)
         else:
             return output
-    
-    find = lambda searchList, elem: [[i for i, x in enumerate(searchList) if x == e] for e in elem]
-    indices = functools.reduce(operator.iconcat, find(devices.columns, PM_dict[dev_type]), [])
-    devices2 = get_sliding_windows(devices[:-1], 5)
-    for i in devices2:
-        if (i[0][3] == i[1][3] == i[2][3] == i[3][3] == i[4][3]):
-            if (np.isin((i[0][2], i[1][2], i[2][2]), label_list)).all():
-                if(i[0][49] == 0 and i[1][49] == 0 and i[2][49] == 0):
-                    if(i[3][49] or i[4][49]):
-                        y.append([1])
-                    else:
-                        if (np.isin((i[3][2], i[4][2]), label_list).all()):
-                            y.append([0])
-                        else:
-                            continue
-                    x.append([np.take(i[0], indices), np.take(i[1], indices), np.take(i[2], indices)])
-#    for idx in devices.index:
-#        device_type = devices.loc[idx:idx + m + n - 1, 'GROUPBYKEY']
-#        if device_type.nunique() != 1:  # make sure all devices in this window are the same
-#            continue
-#
-#        m_labels = devices.loc[idx:idx + m - 1, 'LABEL']
-#        n_labels = devices.loc[idx + m:idx + m + n - 1, 'LABEL']
-#        if ~m_labels.isin(label_list).all():  # make sure m data are all in service
-#            continue
-#
-#        m_alarms = devices.loc[idx:idx + m - 1, 'ALARM']
-#        if m_alarms.any():  # make sure m data are all normal
-#            continue
-#
-#        if (devices.loc[idx + m:idx + m + n - 1, 'ALARM'].values.any()):
-#            y.append([1])
-#        else:
-#            if (n_labels.isin(
-#                    label_list).all()):  # if no alarm happens, then it's a normal sample and the labels should all be in service.
-#                y.append([0])
-#            else:
-#                continue
-#
-#        x.append(devices.loc[idx:idx + m - 1, pm_list].values)
-#
-#        if idx % 10000 == 0:
-#            print(idx)
-#
-#        if idx + m + n == devices.index[-1]:
-#            break
 
-    X = np.expand_dims(x, 3)
-    Y = np.array(y)
-    logger.info('DATA COUNT')
-    logger.info('\n'+ str(collections.Counter(Y.flatten())))
-    return X, Y
-X,Y = slid_generate(3,2,data, label_list, pm_list, device_list,drop_list,alarm_list, False, all_alarms=True)
-# X,Y = slid_generate(3,2,data, label_list, None, None,drop_list,alarm_list, True, True)
+    def mask_list(i):
+        # If m+n data do not have the same device type, return False
+        if(len(set(i[0:m + n, 3])) != 1):
+            return False
+        # If m data are not all in service, return False
+        elif(~np.isin(i[0:m, 2], label_list).all()):
+            return False
+        # If any of m data is an anomaly instance, return False
+        elif(i[0:m, 49].any()):
+            return False
+        # If i doesn't mach any of above, return True
+        else:
+            return True
 
-np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_pms_partial_3days_may_los.npy' % dev_type, X)
-np.save('/home/oem/Projects/NetDeviceAbnormalDetection/data/perdevice/%s_alarms_2days_may_los.npy' % dev_type, Y)
+    def label_data(i):
+        # If any of the n data is an anomaly instance, return 1
+        if(i[m:m+n, 49].any()):
+            return 1
+        else:
+            return 0
+    devices = get_sliding_windows(devices[:-1], m + n)
+    mask = [mask_list(i) for i in devices]
+
+    new = devices[mask]
+    label = [label_data(i) for i in new]
+    assert new.shape[0] == len(label)
+    return new, label
+
+X,Y= slid_generate(3,2,data, label_list, pm_list, device_list,drop_list,alarm_list, False, all_alarms=True)
+
 
