@@ -95,7 +95,7 @@ model = Model(inputs=[input], outputs=[output])
 # output = Dense(2,activation='softmax')(layer2)
 #
 # model = Model(input = input, output = output)
-optimizer = RMSprop(0.001)
+optimizer = Adagrad(0.001)
 
 model.summary()
 model.compile(loss='mean_squared_error',
