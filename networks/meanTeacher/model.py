@@ -4,7 +4,7 @@ import tensorflow as tf
 from tensorflow.contrib import metrics, slim
 from tensorflow.contrib.metrics import streaming_mean
 from networks.meanTeacher.network import resnet_1, fully_connected
-from networks.meanTeacher.framework import ema_variable_scope, name_variable_scope, assert_shape, HyperparamVariables
+from networks.meanTeacher.framework.framework import ema_variable_scope, name_variable_scope, assert_shape, HyperparamVariables
 from networks.meanTeacher.framework.string_utils import *
 logging.basicConfig(level=logging.INFO, filename= 'train_log',filemode='a')
 LOG = logging.getLogger('train_log')

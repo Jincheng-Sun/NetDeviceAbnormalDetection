@@ -167,7 +167,7 @@ unlabeled_tk = mask_data(raw_data_tk)
 # create dataset
 # combine anomaly and equal amount of normal data, and split
 trainset_1, testset= train_test_split(
-    pd.concat([anomaly_eu, normal_labeled], axis=0), test_size=0.2, random_state=22)
+    pd.concat([anomaly_eu, normal_labeled], axis=0), test_size=0.2, random_state=22)  # anomaly_eu and normal_labeled have the same shape
 # combine the two unlabeled data partition
 trainset_2 = pd.concat([normal_unlabeled_eu, unlabeled_tk], axis=0)
 # combine and shuffle the dataset
@@ -177,4 +177,8 @@ print(trainset['ALARM'].value_counts())
 X_train, y_train = preprocessing(trainset)
 X_test, y_test = preprocessing(testset)
 # save data in npy format
-# np.save('X_train_path.npy', X_train)
+np.save('x_train.npy', X_train)
+np.save('y_train.npy', y_train)
+
+np.save('x_test.npy', X_test)
+np.save('y_test.npy', y_test)

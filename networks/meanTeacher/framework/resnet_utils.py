@@ -34,7 +34,7 @@ def subsample(inputs, factor, scope=None):
   if factor == 1:
     return inputs
   else:
-    return tf.layers.max_pooling2d(inputs, 1, strides=factor)
+    return tf.layers.max_pooling1d(inputs, 1, strides=factor)
 
 
 @slim.add_arg_scope
