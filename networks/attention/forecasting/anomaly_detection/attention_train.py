@@ -16,15 +16,15 @@ dataset = Attn_dataset_2d(feature_path='data/m3_n2_attn_features.npy',
                        out_num=1)
 resnet = Resnet()
 
-model = Attn_model_2d(ckpt_path='models/goodones/attn', tsboard_path='log/', network=resnet,input_shape=[3, 45, 1],
+model = Attn_model_2d(ckpt_path='models/attn', tsboard_path='log/', network=resnet,input_shape=[3, 45, 1],
                    num_classes=1, feature_num=45, dev_num=11, lr=0.001, batch_size=100,
-                   regression=True, threshold=threshold)
+                   regression=True, threshold=threshold, patience=20)
 
-# model.initialize_variables()
-# model.save_tensorboard_graph()
-# model.train(dataset)
+model.initialize_variables()
+model.save_tensorboard_graph()
+model.train(dataset)
 
-model.restore_checkpoint(610)
+# model.restore_checkpoint(610)
 prediction = model.get_proba(dataset)
 
 auc, fprs, tprs, thresholds = auc_roc(y_pred=prediction, y_test=dataset.test_set['y'])
