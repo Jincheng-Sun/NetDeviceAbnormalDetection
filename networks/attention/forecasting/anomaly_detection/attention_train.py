@@ -1,8 +1,8 @@
 import sys
 sys.path.insert(0,'/home/oem/Projects/Kylearn')
-from Attention.attn_model_2d import Attn_model_2d
-from Attention.attn_model_2d_timeSeries import Attn_model_2d_timeSeries
-from Attention.attn_dataset import Attn_dataset_2d
+from Models.Attention.attn_model_2d import Attn_model_2d
+from Models.Attention.attn_model_2d_timeSeries import Attn_model_2d_timeSeries
+from Models.Attention.attn_dataset import Attn_dataset_2d
 from Networks.resnet_network import Resnet
 from evaluation.metrics import metrics_binary, auc_roc
 from visualization.draw_matrix import draw_confusion_matrix
