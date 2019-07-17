@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 dev_list = ['AMP', 'ETH10G', 'ETHN', 'ETTP', 'OC192', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
 
@@ -31,6 +32,14 @@ def visualize_input_attention(matrix, dev_list, pm_list):
     # attn_matrix['sum'] = attn_matrix.sum(axis = 1)
     # attn_matrix = attn_matrix[pm_list].div(attn_matrix['sum'], axis = 0)
 
+    return attn_matrix
+
+def visualize_input_attention_2d(matrix, pm_list):
+    num = matrix.shape[0]
+    index = np.arange(num)
+    index = -np.flip(index)
+    attn_matrix = pd.DataFrame(data=matrix, index=index, columns=pm_list)
+    attn_matrix[attn_matrix == 1] = 0
     return attn_matrix
 
 def visualize_output_attention(matrix, dev_list, alarm_list):
