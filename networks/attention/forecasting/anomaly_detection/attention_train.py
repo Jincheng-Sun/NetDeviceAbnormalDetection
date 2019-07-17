@@ -1,22 +1,23 @@
 import sys
 sys.path.insert(0,'/home/oem/Projects/Kylearn')
-from Models.Attention.attn_model_2d import Attn_model_2d
-from Models.Attention.attn_model_2d_timeSeries import Attn_model_2d_timeSeries
+from Models.Attention.attn_model import Attn_model_2d
+from Models.Attention.attn_model import Attn_model_2d_timeSeries
 from Models.Attention.attn_dataset import Attn_dataset_2d
-from Networks.resnet_network import Resnet
+from Networks.residual_network import Resnet_2d
 from evaluation.metrics import metrics_binary, auc_roc
 from visualization.draw_matrix import draw_confusion_matrix
 from visualization.draw_roc import plot_roc_curve
 import numpy as np
 threshold = 0.8
-
-dataset = Attn_dataset_2d(feature_path='data/m3_n2_attn_features.npy',
-                       dev_path= 'data/m3_n2_attn_devices.npy',
-                       label_path='data/m3_n2_attn_labels.npy',
+m = 5
+n = 2
+dataset = Attn_dataset_2d(feature_path='data/m%s_n%s_attn_features.npy'%(m, n),
+                       dev_path= 'data/m%s_n%s_attn_devices.npy'%(m, n),
+                       label_path='data/m%s_n%s_attn_labels.npy'%(m, n),
                        out_num=1)
-resnet = Resnet()
+resnet = Resnet_2d()
 
-model = Attn_model_2d(ckpt_path='models/attn', tsboard_path='log/', network=resnet,input_shape=[3, 45, 1],
+model = Attn_model_2d(ckpt_path='models/attn', tsboard_path='log/', network=resnet,input_shape=[5, 45, 1],
                    num_classes=1, feature_num=45, dev_num=11, lr=0.001, batch_size=100,
                    regression=True, threshold=threshold, patience=20)
 
@@ -24,21 +25,21 @@ model.initialize_variables()
 model.save_tensorboard_graph()
 model.train(dataset)
 
-# model.restore_checkpoint(610)
-prediction = model.get_proba(dataset)
-
-auc, fprs, tprs, thresholds = auc_roc(y_pred=prediction, y_test=dataset.test_set['y'])
-
-plot_roc_curve(fprs, tprs, auc, x_axis=0.05)
-
-cm, fpr, acc, precision, recall = metrics_binary(
-    y_pred=prediction, y_test=dataset.test_set['y'],threshold=threshold)
-
-draw_confusion_matrix(cm, ['Normal', 'malfunction'], precision=True)
-
-test_dev = np.diag(np.ones([11]))
-attn1, attn2 = model.get_attn_matrix(test_dev)
-
+# model.restore_checkpoint(1310)
+# prediction = model.get_proba(dataset)
+#
+# auc, fprs, tprs, thresholds = auc_roc(y_pred=prediction, y_test=dataset.test_set['y'])
+#
+# plot_roc_curve(fprs, tprs, auc, x_axis=0.05)
+#
+# cm, fpr, acc, precision, recall = metrics_binary(
+#     y_pred=prediction, y_test=dataset.test_set['y'],threshold=threshold)
+#
+# draw_confusion_matrix(cm, ['Normal', 'malfunction'], precision=True)
+#
+# test_dev = np.diag(np.ones([11]))
+# attn1, attn2 = model.get_attn_matrix(test_dev)
+#
 #
 # dev_list = ['AMP', 'ETH10G', 'ETHN', 'ETTP', 'OC192', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
 #
@@ -60,5 +61,5 @@ attn1, attn2 = model.get_attn_matrix(test_dev)
 #
 #
 # #
-# from networks.attention.results_process import visualize_input_attention
-# attn1 = visualize_input_attention(attn1, dev_list, pm_list)
+# from networks.attention.results_process import visualize_input_attention_2d
+# attn_input_i = visualize_input_attention_2d(attn1[0], pm_list)
