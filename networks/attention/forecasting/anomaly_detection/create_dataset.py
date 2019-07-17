@@ -101,10 +101,10 @@ def slid_generate(past_days, future_days, data, state_list=None, device_list=Non
     return valid_data, label
 
 
-m = 3
+m = 5
 n = 2
 
-X, Y = slid_generate(past_days=m, future_days=2, data=data,
+X, Y = slid_generate(past_days=m, future_days=n, data=data,
                      state_list=state_list, device_list=dev_list, alarm_list=alarm_list)
 
 devices = X[:,0,3]
@@ -112,10 +112,10 @@ devices = le_1.transform(devices)
 devices = devices.reshape([-1, 1])
 devices = ohe_1.transform(devices).toarray()
 
-features = X[:,0:3,4:49]
+features = X[:,0:m,4:49]
 labels = np.array(Y).reshape(-1,1)
 
-np.save('data/m3_n2_attn_features.npy', features)
-np.save('data/m3_n2_attn_devices.npy', devices)
-np.save('data/m3_n2_attn_labels.npy', labels)
+np.save('data/m%s_n%s_attn_features.npy'%(m, n), features)
+np.save('data/m%s_n%s_attn_devices.npy'%(m, n), devices)
+np.save('data/m%s_n%s_attn_labels.npy'%(m, n), labels)
 
