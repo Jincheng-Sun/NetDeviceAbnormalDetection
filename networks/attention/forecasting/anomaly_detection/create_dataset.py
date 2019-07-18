@@ -14,6 +14,7 @@ logfile = 'create_data_log'
 logger = log_down(logfile)
 gc.enable()
 
+# device list, alarm_list and state_list for filtering the dataset
 dev_list = ['AMP', 'ETH', 'ETH10G', 'ETHN', 'ETTP', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
 alarm_list = [None, 'Excessive Error Ratio',  # 1
               'Frequency Out Of Range',  # 2
@@ -23,15 +24,18 @@ alarm_list = [None, 'Excessive Error Ratio',  # 1
               'Rx Power Out Of Range']  # 12
 state_list = ['IS', 'n/a', 'IS-ANR']
 
+# load europe dataset
+# dataset should be Europe_Network_data from 2018.11 to 2019.03 that Derek shared on March 25
+# do not use May13
 data = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_Network_data.parquet')
 
+# scaler and encoders
 scaler = StandardScaler(with_mean=False)
 scaler.fit(data.iloc[:, 4:49])
 le_1 = LabelEncoder()
 le_1.fit(dev_list)
 ohe_1 = OneHotEncoder()
 ohe_1.fit(np.arange(0,len(dev_list)).reshape([-1,1]))
-
 
 def slid_generate(past_days, future_days, data, state_list=None, device_list=None, alarm_list=None):
     logger.info('Past day(s): %s Future day(s): %s' % (past_days, future_days))
@@ -55,8 +59,10 @@ def slid_generate(past_days, future_days, data, state_list=None, device_list=Non
     logger.info('\n' + str(devices['GROUPBYKEY'].value_counts()))  # print device count
     logger.info('ALARM COUNT')
     logger.info('\n' + str(devices['ALARM'].value_counts()))  # print device count
-
+    # ------------------------------------------------------------------------------
+    # change this line to generate label range from 0 ~ 11 (since there 12 kinds of alarm
     devices['ALARM'] = devices['ALARM'].map(lambda x: 0 if x == 0 else 1)  # mask all alarms 1
+    # ------------------------------------------------------------------------------
 
     logger.info('SAMPLE COUNT')
     logger.info('\n' + str(devices['ALARM'].value_counts()))
@@ -100,21 +106,27 @@ def slid_generate(past_days, future_days, data, state_list=None, device_list=Non
     assert valid_data.shape[0] == len(label)
     return valid_data, label
 
-
+# Use past m days of data to predict 2 days ahead
 m = 5
 n = 2
 
+# X has a shape of [?, m+n, 50], Y has a shape of [?, 1].
+# If modified to generate data for classification, Y should have a shape of [?, 12](one-hotted)
 X, Y = slid_generate(past_days=m, future_days=n, data=data,
                      state_list=state_list, device_list=dev_list, alarm_list=alarm_list)
 
 devices = X[:,0,3]
+# turn string device type to one-hot representation
 devices = le_1.transform(devices)
 devices = devices.reshape([-1, 1])
 devices = ohe_1.transform(devices).toarray()
 
+# extract features from X, features should have a shape of [?, m, 45]
 features = X[:,0:m,4:49]
+# For classification it should be reshape to [-1,12]
 labels = np.array(Y).reshape(-1,1)
 
+# save file
 np.save('data/m%s_n%s_attn_features.npy'%(m, n), features)
 np.save('data/m%s_n%s_attn_devices.npy'%(m, n), devices)
 np.save('data/m%s_n%s_attn_labels.npy'%(m, n), labels)
