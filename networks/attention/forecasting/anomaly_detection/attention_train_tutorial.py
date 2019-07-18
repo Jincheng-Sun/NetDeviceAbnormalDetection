@@ -1,9 +1,13 @@
 import sys
 sys.path.insert(0,'/home/oem/Projects/Kylearn')
+# Use this model from my newest repo
 from Models.Attention.attn_model import Attn_model_2d
 from Models.Attention.attn_model import Attn_model_2d_timeSeries
+# Modify this dataset class or write your own
 from Models.Attention.attn_dataset import Attn_dataset_2d
+# Use this network
 from Networks.residual_network import Resnet_2d
+# import these evaluation and visualization lib from my repo
 from evaluation.metrics import metrics_binary, auc_roc
 from visualization.draw_matrix import draw_confusion_matrix
 from visualization.draw_roc import plot_roc_curve
