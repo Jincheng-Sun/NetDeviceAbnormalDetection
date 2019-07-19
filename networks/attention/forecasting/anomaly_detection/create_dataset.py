@@ -106,7 +106,7 @@ def slid_generate(past_days, future_days, data, state_list=None, device_list=Non
     assert valid_data.shape[0] == len(label)
     return valid_data, label
 
-# Use past m days of data to predict n days ahead
+# Use past m days of data to predict nu days ahead
 m = 3
 n = 2
 

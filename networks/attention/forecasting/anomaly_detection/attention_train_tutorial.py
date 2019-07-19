@@ -18,10 +18,10 @@ n = 2
 # For attention model, there are 3 files to load, they are generated from ./create_dataset.py
 # output num is the dimension of the label, for classification it should be 12
 # Please read the code of dataset class and write one in this format for classification
-# dataset = Attn_dataset_2d(feature_path='data/m%s_n%s_attn_features.npy'%(m, n),
-#                        dev_path= 'data/m%s_n%s_attn_devices.npy'%(m, n),
-#                        label_path='data/m%s_n%s_attn_labels.npy'%(m, n),
-#                        out_num=1)
+dataset = Attn_dataset_2d(feature_path='data/m%s_n%s_attn_features.npy'%(m, n),
+                       dev_path= 'data/m%s_n%s_attn_devices.npy'%(m, n),
+                       label_path='data/m%s_n%s_attn_labels.npy'%(m, n),
+                       out_num=1)
 # load network
 resnet = Resnet_2d()
 
