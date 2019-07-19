@@ -21,7 +21,7 @@ model = Attn_model(ckpt_path='models/attn', tsboard_path='log/', network=resnet_
 # model.train(dataset)
 # #
 model.restore_checkpoint(2332)
-prediction = model.get_proba(dataset)
+prediction = model.get_proba(dataset.test_set)
 
 auc, fprs, tprs, thresholds = auc_roc(y_pred=prediction, y_test=dataset.test_set['y'])
 

@@ -21,7 +21,7 @@ model = CNN_model(ckpt_path='models/conc', tsboard_path='log/', network=resnet_1
 
 
 model.restore_checkpoint(954)
-prediction = model.get_proba(dataset)
+prediction = model.get_proba(dataset.test_set)
 
 auc, fprs, tprs, thresholds = auc_roc(y_pred=prediction, y_test=dataset.test_set['y'])
 

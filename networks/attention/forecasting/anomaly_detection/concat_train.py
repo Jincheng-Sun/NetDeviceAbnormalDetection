@@ -26,7 +26,7 @@ model.save_tensorboard_graph()
 model.train(dataset)
 
 model.restore_checkpoint(984)
-prediction = model.get_proba(dataset)
+prediction = model.get_proba(dataset.test_set)
 
 auc, fprs, tprs, thresholds = auc_roc(y_pred=prediction, y_test=dataset.test_set['y'])
 
