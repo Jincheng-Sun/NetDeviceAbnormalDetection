@@ -1,8 +1,8 @@
 import sys
 sys.path.insert(0,'/home/oem/Projects/Kylearn')
-from Attention.attn_model import Attn_model
-from Attention.attn_dataset import Attn_dataset
-from Networks.residual_network_1d import Resnet_1d
+from Models.Attention.attn_model import Attn_model_1d
+from Models.Attention.attn_dataset import Attn_dataset
+from Networks.residual_network import Resnet_1d
 from evaluation.metrics import metrics_binary, metrics_multi, auc_roc
 from visualization.draw_matrix import draw_confusion_matrix
 from visualization.draw_roc import plot_roc_curve
@@ -32,19 +32,19 @@ pm_list = ['BBE-RS',
             'RS-BBE', 'RS-ES',
             'S-CV', 'S-ES']
 
-dataset = Attn_dataset(feature_path='data/a_PMs',
-                       dev_path= 'data/a_dev',
-                       label_path='data/a_alm',
+dataset = Attn_dataset(feature_path='/home/oem/Projects/NetDeviceAbnormalDetection/networks/wrapup/present_classification/data/X',
+                       dev_path= '/home/oem/Projects/NetDeviceAbnormalDetection/networks/wrapup/present_classification/data/dev',
+                       label_path='/home/oem/Projects/NetDeviceAbnormalDetection/networks/wrapup/present_classification/data/y',
                        out_num=12)
 resnet_1d = Resnet_1d()
-model = Attn_model(ckpt_path='models/attn', tsboard_path='log/', network=resnet_1d,input_shape=[45, 1],
+model = Attn_model_1d(ckpt_path='models/attn', tsboard_path='log/', network=resnet_1d,input_shape=[45, 1],
                    num_classes=12, feature_num=45, dev_num=11, lr=0.001, batch_size=100,
                    regression=False)
-# model.initialize_variables()
-# model.save_tensorboard_graph()
-# model.train(dataset)
+model.initialize_variables()
+model.save_tensorboard_graph()
+model.train(dataset)
 
-model.restore_checkpoint(6731)
+# model.restore_checkpoint(6731)
 
 # -------------------------------------------------------------------------------------------
 # overall
