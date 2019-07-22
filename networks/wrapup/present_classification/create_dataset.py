@@ -13,13 +13,12 @@ raw_data_eu = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/dat
 dev_list = ['AMP', 'ETH', 'ETH10G', 'ETHN', 'ETTP', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
 # Alarms we focus on, note that `Laser Off Far End Failure Triggered` and 'Remote Fault' will be excluded
 # as discussed with David
-alarm_list = ['Excessive Error Ratio',
-              'Frequency Out Of Range',
-              'GCC0 Link Failure', 'Gauge Threshold Crossing Alert Summary',
-              'Laser Off Far End Failure Triggered', 'Link Down', 'Local Fault',
-              'Loss Of Clock', 'Loss Of Frame', 'Loss Of Signal',
-              'OSC OSPF Adjacency Loss', 'OTU Signal Degrade',
-              'Remote Fault', 'Rx Power Out Of Range']
+alarm_list = ['Excessive Error Ratio',  # 1
+              'Frequency Out Of Range',  # 2
+              'GCC0 Link Failure', 'Gauge Threshold Crossing Alert Summary',  # 4
+              'Link Down', 'Local Fault', 'Loss Of Clock', 'Loss Of Frame', 'Loss Of Signal',  # 9
+              'OSC OSPF Adjacency Loss', 'OTU Signal Degrade',  # 11
+              'Rx Power Out Of Range']  # 12
 state_list = ['IS', 'n/a', 'IS-ANR']
 
 def unify_to(data_obj, data_sub):
@@ -128,29 +127,39 @@ anomaly_eu = label_data(anomaly_eu, is_classification=True)
 normal_unlabeled_eu = mask_data(normal_unlabeled_eu)
 # take all the Tokyo data as unlabeled data
 raw_data_tk = keep_valid_data(raw_data_tk)
+raw_data_tk = raw_data_tk.fillna(0)
 unlabeled_tk = mask_data(raw_data_tk)
 # create dataset
 # split anomaly data, keep the second part as testset since we don't need unlabeled data for testing
-trainset_1, testset= train_test_split(anomaly_eu, test_size=0.28, random_state=22)
+trainset, testset= train_test_split(anomaly_eu, test_size=0.28, random_state=22)
 # combine the two unlabeled data partition
-trainset_2 = pd.concat([normal_unlabeled_eu, unlabeled_tk], axis=0)
+trainset_unlabeled = pd.concat([normal_unlabeled_eu, unlabeled_tk], axis=0)
 # combine and shuffle the dataset
-trainset = pd.concat([trainset_1, trainset_2], axis=0, ignore_index=True).sample(frac=1)
+
 print(trainset['ALARM'].value_counts())
 # Apply the preprocessing flow in evaluation.ipynb after
 X_train, dev_train, y_train = preprocessing(trainset)
 X_test, dev_test, y_test = preprocessing(testset)
+X_train_un, dev_train_un, y_train_un = preprocessing(trainset_unlabeled)
 # Reshape and expand
 X_train = np.expand_dims(X_train, axis=-1)
 dev_train = dev_train.toarray()
 X_test = np.expand_dims(X_test, axis=-1)
 dev_test = dev_test.toarray()
+X_train_un = np.expand_dims(X_train_un, axis=-1)
+dev_train_un = dev_train_un.toarray()
 # save data in npy format
+# training set
 np.save('data/X_train.npy', X_train)
 np.save('data/dev_train.npy', dev_train)
 np.save('data/y_train.npy', y_train)
+#test set
 np.save('data/X_test.npy', X_test)
 np.save('data/dev_test.npy', dev_test)
 np.save('data/y_test.npy', y_test)
+# unlabeled
+np.save('data/X_un_train.npy', X_train_un)
+np.save('data/dev_un_train.npy', dev_train_un)
+np.save('data/y_un_train.npy', y_train_un)
 
 
