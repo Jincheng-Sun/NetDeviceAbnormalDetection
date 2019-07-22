@@ -9,8 +9,11 @@ from visualization.draw_roc import plot_roc_curve
 import numpy as np
 
 dataset = pr_cl_dataset(feature_path='data/X',
-                       dev_path= 'data/dev',
-                       label_path='data/y')
+                        dev_path= 'data/dev',
+                        label_path='data/y',
+                        unlabeled_feature_path='data/X_un',
+                        unlabeled_dev_path='data/dev_un'
+                        )
 resnet_1d = Resnet_1d()
 model = Mean_Teacher_model_1d(ckpt_path='models/', tsboard_path='log/', network=resnet_1d,input_shape=[45, 1],
                    num_classes=12, feature_num=45, dev_num=11, lr=0.001, batch_size=100,
