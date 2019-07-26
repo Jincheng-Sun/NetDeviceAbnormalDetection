@@ -2,8 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler, OneHotEncoder
-from sklearn.externals import joblib
-from keras.models import load_model
+
 
 # load Tokyo and Europe dataset
 raw_data_tk = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Tokyo_Network_Data_1Day.parquet')
@@ -104,9 +103,9 @@ def preprocessing(data):
     # Using min_max scaler change the center of input distribution,
     # consider using StandardScaler with with_mean = False
     PMs = scaler.transform(data.iloc[:, 1:46])
-    GBK = le_1.transform(np.reshape(data['GROUPBYKEY'].tolist(), [-1, 1]))
-    GBK = np.reshape(GBK, [-1, 1])
-    GBK = ohe_1.transform(GBK)
+    GBK = le_1.transform(data['GROUPBYKEY'].tolist())
+    # GBK = np.reshape(GBK, [-1, 1])
+    # GBK = ohe_1.transform(GBK)
     y = data['ALARM'].values
     return PMs, GBK, y
 
@@ -140,14 +139,11 @@ print(trainset['ALARM'].value_counts())
 # Apply the preprocessing flow in evaluation.ipynb after
 X_train, dev_train, y_train = preprocessing(trainset)
 X_test, dev_test, y_test = preprocessing(testset)
-X_train_un, dev_train_un, y_train_un = preprocessing(trainset_unlabeled)
+X_train_un, dev_train_un, _ = preprocessing(trainset_unlabeled)
 # Reshape and expand
 X_train = np.expand_dims(X_train, axis=-1)
-dev_train = dev_train.toarray()
 X_test = np.expand_dims(X_test, axis=-1)
-dev_test = dev_test.toarray()
 X_train_un = np.expand_dims(X_train_un, axis=-1)
-dev_train_un = dev_train_un.toarray()
 # save data in npy format
 # training set
 np.save('data/X_train.npy', X_train)
@@ -160,6 +156,6 @@ np.save('data/y_test.npy', y_test)
 # unlabeled
 np.save('data/X_un_train.npy', X_train_un)
 np.save('data/dev_un_train.npy', dev_train_un)
-np.save('data/y_un_train.npy', y_train_un)
+
 
 
