@@ -6,8 +6,9 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler, OneHotEncoder
 
 # load Tokyo and Europe dataset
 raw_data_tk = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Tokyo_Network_Data_1Day.parquet')
+raw_data_tk = raw_data_tk.drop_duplicates()
 raw_data_eu = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_Network_data.parquet')
-
+raw_data_eu = raw_data_eu.drop_duplicates()
 # Devices we focus on
 dev_list = ['AMP', 'ETH', 'ETH10G', 'ETHN', 'ETTP', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
 # Alarms we focus on, note that `Laser Off Far End Failure Triggered` and 'Remote Fault' will be excluded
@@ -103,8 +104,10 @@ def preprocessing(data):
     # scaling the data into interval [0,1].
     # Using min_max scaler change the center of input distribution,
     # consider using StandardScaler with with_mean = False
-    # PMs = scaler.transform(data.iloc[:, 1:46])
-    PMs = data.iloc[:, 1:46].values
+    # Use scaler
+    # PMs = data.iloc[:, 1:46].values
+    PMs = scaler.transform(data.iloc[:, 1:46])
+
 
     GBK = le_1.transform(data['GROUPBYKEY'].tolist())
     # GBK = np.reshape(GBK, [-1, 1])
@@ -118,19 +121,39 @@ def preprocessing(data):
 raw_data_eu, raw_data_tk = unify_to(raw_data_eu, raw_data_tk)
 raw_data_eu = keep_valid_data(raw_data_eu)
 
+# -----------------------------------------------------------------------------------
+# for a balanced train set and an imbalanced test set.
+# -----------------------------------------------------------------------------------
+
+# anomaly_eu, normal_eu = split_and_drop(raw_data_eu)
+# anomaly_eu = label_data(anomaly_eu, is_classification=False)
+# anomaly_eu_train, anomaly_eu_test = train_test_split(anomaly_eu, test_size=0.2, random_state=23)
+# normal_eu_train, normal_eu_test = train_test_split(normal_eu, test_size=0.2, random_state=23)
+# normal_eu_train, unlabeled_eu = train_test_split(normal_eu_train,
+#                                                         train_size=anomaly_eu_train.shape[0], random_state=23)
+# raw_data_tk = keep_valid_data(raw_data_tk)
+# raw_data_tk = raw_data_tk.fillna(0)
+# unlabeled_tk = mask_data(raw_data_tk)
+#
+# trainset = pd.concat([anomaly_eu_train,normal_eu_train], axis=0)
+# testset = pd.concat([anomaly_eu_test,normal_eu_test], axis=0)
+# trainset_unlabeled = pd.concat([unlabeled_eu, unlabeled_tk])
+
+# -----------------------------------------------------------------------------------
+# for an imbalanced train set and an imbalanced test set.
+# -----------------------------------------------------------------------------------
+
 anomaly_eu, normal_eu = split_and_drop(raw_data_eu)
 anomaly_eu = label_data(anomaly_eu, is_classification=False)
 anomaly_eu_train, anomaly_eu_test = train_test_split(anomaly_eu, test_size=0.2, random_state=23)
 normal_eu_train, normal_eu_test = train_test_split(normal_eu, test_size=0.2, random_state=23)
-normal_eu_train, unlabeled_eu = train_test_split(normal_eu_train,
-                                                        train_size=anomaly_eu_train.shape[0], random_state=23)
 raw_data_tk = keep_valid_data(raw_data_tk)
 raw_data_tk = raw_data_tk.fillna(0)
 unlabeled_tk = mask_data(raw_data_tk)
 
 trainset = pd.concat([anomaly_eu_train,normal_eu_train], axis=0)
 testset = pd.concat([anomaly_eu_test,normal_eu_test], axis=0)
-trainset_unlabeled = pd.concat([unlabeled_eu, unlabeled_tk])
+trainset_unlabeled = unlabeled_tk
 
 print(trainset['ALARM'].value_counts())
 # Apply the preprocessing flow in evaluation.ipynb after
