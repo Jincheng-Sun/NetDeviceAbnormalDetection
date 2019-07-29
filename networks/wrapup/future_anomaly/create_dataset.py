@@ -204,9 +204,10 @@ devices_train, devices_test = train_test_split(devices, test_size=0.2, random_st
 
 # extract features from X, features should have a shape of [?, m, 45]
 features = X[:,0:m,4:49]
+features = np.expand_dims(features, axis=-1)
 features_train, features_test = train_test_split(features, test_size=0.2, random_state=23)
 # For classification it should be reshape to [-1,12]
-labels = np.array(Y).reshape(-1,1)
+labels = np.array(Y).reshape([-1, 1])
 labels_train, labels_test = train_test_split(labels, test_size=0.2, random_state=23)
 
 # save file
@@ -228,6 +229,8 @@ devices_un = le_1.transform(devices_un)
 
 # extract features from X, features should have a shape of [?, m, 45]
 features_un = X_un[:, 0:m, 4:49]
+features_un = np.expand_dims(features_un, axis=-1)
+
 # For classification it should be reshape to [-1,12]
 
 # save file

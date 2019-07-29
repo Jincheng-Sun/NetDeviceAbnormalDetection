@@ -1,8 +1,8 @@
-2019-07-24 13:05:41,790 - INFO: Past day(s): 3 Future day(s): 2
-2019-07-24 13:05:42,734 - INFO: Device type: ['AMP', 'ETH', 'ETH10G', 'ETHN', 'ETTP', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
-2019-07-24 13:05:43,216 - INFO: ALARM: [None, 'Excessive Error Ratio', 'Frequency Out Of Range', 'GCC0 Link Failure', 'Gauge Threshold Crossing Alert Summary', 'Link Down', 'Local Fault', 'Loss Of Clock', 'Loss Of Frame', 'Loss Of Signal', 'OSC OSPF Adjacency Loss', 'OTU Signal Degrade', 'Rx Power Out Of Range']
-2019-07-24 13:06:05,009 - INFO: DEVICE COUNT
-2019-07-24 13:06:05,105 - INFO: 
+2019-07-27 23:44:12,637 - INFO: Past day(s): 3 Future day(s): 2
+2019-07-27 23:44:13,402 - INFO: Device type: ['AMP', 'ETH', 'ETH10G', 'ETHN', 'ETTP', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
+2019-07-27 23:44:13,877 - INFO: ALARM: [None, 'Excessive Error Ratio', 'Frequency Out Of Range', 'GCC0 Link Failure', 'Gauge Threshold Crossing Alert Summary', 'Link Down', 'Local Fault', 'Loss Of Clock', 'Loss Of Frame', 'Loss Of Signal', 'OSC OSPF Adjacency Loss', 'OTU Signal Degrade', 'Rx Power Out Of Range']
+2019-07-27 23:44:35,321 - INFO: DEVICE COUNT
+2019-07-27 23:44:35,419 - INFO: 
 OPTMON    1561260
 AMP        231597
 OTM        134293
@@ -15,8 +15,8 @@ ETHN        12104
 OTM2        10029
 ETH          8948
 Name: GROUPBYKEY, dtype: int64
-2019-07-24 13:06:05,105 - INFO: ALARM COUNT
-2019-07-24 13:06:05,200 - INFO: 
+2019-07-27 23:44:35,419 - INFO: ALARM COUNT
+2019-07-27 23:44:35,514 - INFO: 
 0                                         2242969
 Loss Of Signal                                566
 Local Fault                                   262
@@ -27,12 +27,27 @@ Gauge Threshold Crossing Alert Summary         55
 OTU Signal Degrade                             49
 Rx Power Out Of Range                          35
 OSC OSPF Adjacency Loss                        31
-Frequency Out Of Range                         26
 Excessive Error Ratio                          26
+Frequency Out Of Range                         26
 Link Down                                      12
 Name: ALARM, dtype: int64
-2019-07-24 13:06:05,663 - INFO: SAMPLE COUNT
-2019-07-24 13:06:05,677 - INFO: 
+2019-07-27 23:44:35,991 - INFO: SAMPLE COUNT
+2019-07-27 23:44:36,005 - INFO: 
 0    2242969
 1       1308
 Name: ALARM, dtype: int64
+2019-07-27 23:46:14,663 - INFO: Past day(s): 3 Future day(s): 2
+2019-07-27 23:46:14,914 - INFO: Device type: ['AMP', 'ETH', 'ETH10G', 'ETHN', 'ETTP', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
+2019-07-27 23:46:22,185 - INFO: DEVICE COUNT
+2019-07-27 23:46:22,235 - INFO: 
+OPTMON    386941
+AMP        98315
+OTM        79664
+PTP        23768
+OSC        18211
+ETH10G     10445
+OTUTTP      7268
+ETHN        6342
+OTM2        5390
+ETTP        1676
+Name: GROUPBYKEY, dtype: int64

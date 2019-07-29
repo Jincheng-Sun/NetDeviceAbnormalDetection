@@ -1,0 +1,19 @@
+2019-07-28 16:28:18,660 - INFO: val_loss= 0.6067223    val_acc= 0.204          round: 100
+2019-07-28 16:28:23,411 - INFO: val_loss= 0.67441    val_acc= 0.296          round: 200
+2019-07-28 16:28:28,160 - INFO: val_loss= 0.2140002    val_acc= 0.786          round: 300
+2019-07-28 16:28:32,817 - INFO: val_loss= 0.459    val_acc= 0.541          round: 400
+2019-07-28 16:28:37,451 - INFO: val_loss= 0.667    val_acc= 0.333          round: 500
+2019-07-28 16:28:42,255 - INFO: val_loss= 0.3335    val_acc= 0.6665          round: 600
+2019-07-28 16:28:46,961 - INFO: val_loss= 0.361    val_acc= 0.639          round: 700
+2019-07-28 16:28:51,655 - INFO: val_loss= 0.31058782    val_acc= 0.6895          round: 800
+2019-07-28 16:28:56,564 - INFO: val_loss= 0.31    val_acc= 0.69          round: 900
+2019-07-28 16:29:07,298 - INFO: Restoring parameters from models/-1600
+2019-07-28 16:30:08,678 - INFO: Restoring parameters from models/-100
+2019-07-28 16:30:32,727 - INFO: Restoring parameters from models/-100
+2019-07-28 16:30:48,880 - INFO: Restoring parameters from models/-100
+2019-07-28 16:30:54,704 - INFO: Restoring parameters from models/-100
+2019-07-28 16:31:03,590 - INFO: Restoring parameters from models/-200
+2019-07-28 16:31:12,779 - INFO: Restoring parameters from models/-300
+2019-07-28 16:31:22,904 - INFO: Restoring parameters from models/-400
+2019-07-28 16:31:32,575 - INFO: Restoring parameters from models/-1000
+2019-07-28 16:32:00,571 - INFO: Restoring parameters from models/-900
