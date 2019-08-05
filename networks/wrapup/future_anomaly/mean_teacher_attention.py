@@ -1,6 +1,6 @@
 import sys
 sys.path.insert(0,'/home/oem/Projects/Kylearn')
-from Models.Mean_Teacher.mean_teacher_model import Mean_Teacher_model_2d, plain_model_2d
+from Models.Mean_Teacher.mean_teacher_model import Mean_Teacher_model_2d
 from Models.Mean_Teacher.mean_teacher_dataset import Mean_Teacher_dataset_2d
 from Networks.residual_network import Resnet_2d
 from evaluation.metrics import metrics_binary, metrics_multi, auc_roc
@@ -36,31 +36,34 @@ pm_list = ['BBE-RS',
 dataset = Mean_Teacher_dataset_2d(feature_path='data/m3_n2_X',
                                dev_path= 'data/m3_n2_dev',
                                label_path='data/m3_n2_y',
-                               unlabeled_feature_path='data/m3_n2_X_un',
-                               unlabeled_dev_path='data/m3_n2_dev_un'
+                               unlabeled_feature_path='loose_data/m3_n2_X_un',
+                               unlabeled_dev_path='loose_data/m3_n2_dev_un'
                                )
-resnet_1d = Resnet_2d()
-model = plain_model_2d(ckpt_path='models/', tsboard_path='log/', network=resnet_1d,input_shape=[3, 45, 1],
-                   num_classes=1, feature_num=45, dev_num=11, lr=0.001, batch_size=100, max_step = 50000)
-
+resnet_2d = Resnet_2d()
+model = Mean_Teacher_model_2d(ckpt_path='models/', tsboard_path='log/', network=resnet_2d,input_shape=[3, 45, 1],
+                   num_classes=1, feature_num=45, dev_num=11,
+                              lr=0.0001, batch_size=1000, max_step = 20000, regression = True, patience = 50)
+#
 model.initialize_variables()
 model.save_tensorboard_graph()
-model.train(dataset)
+model.balance_train(dataset)
+# model.train(dataset)
+
 #
+# model.restore_checkpoint(13500)
 # #
-model.restore_checkpoint(1600)
+# proba = model.get_proba(dataset.test_set[:20000], is_training = False)
+# auc, fprs, tprs, thresholds = auc_roc(y_pred=proba, y_test=dataset.test_set['y'][:20000])
 #
-prediction = model.get_prediction(dataset.test_set[:20000], is_training = True)
-proba = model.get_proba(dataset.test_set[:20000], is_training = False)
-
-cm, accuracy = metrics_multi(
-    y_pred=prediction, y_test=dataset.test_set['y'][:20000], labels=['normal', 'anomaly'])
-
-import matplotlib.pyplot as pyplot
-pyplot.rcParams['savefig.dpi'] = 300  # pixel
-pyplot.rcParams['figure.dpi'] = 300  # resolution
-pyplot.rcParams["figure.figsize"] = [5,4] # figure size
-
-draw_confusion_matrix(cm, ['normal', 'anomaly'], precision=True, plt=pyplot)
-
-attn1, attn2 = model.get_attn_matrix()
+# plot_roc_curve(fprs, tprs, auc, x_axis=0.05)
+#
+# cm, fpr, acc, precision, recall = metrics_binary(
+#     y_pred=proba, y_test=dataset.test_set['y'][:20000],threshold=0.95)
+#
+#
+# import matplotlib.pyplot as pyplot
+# pyplot.rcParams['savefig.dpi'] = 300  # pixel
+# pyplot.rcParams['figure.dpi'] = 300  # resolution
+# pyplot.rcParams["figure.figsize"] = [5,4] # figure size
+#
+# draw_confusion_matrix(cm, ['normal', 'anomaly'], precision=True, plt=pyplot)
