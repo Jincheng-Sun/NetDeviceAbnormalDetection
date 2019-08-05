@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler, OneHotEncoder
-
+from sklearn.externals import joblib
 
 # load Tokyo and Europe dataset
 raw_data_tk = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Tokyo_Network_Data_1Day.parquet')
@@ -66,13 +66,10 @@ def split_and_drop(raw_data):
     normal = normal[normal['LABEL'].isin(state_list)]
     # random sample same amount with anomaly data of normal data
     # as labeled data, and the rest as unlabeled data.
-    normal_labeled, normal_unlabeled = train_test_split(
-        normal, train_size=anomaly.shape[0], random_state=42)
 
-    return anomaly, normal_labeled, normal_unlabeled
+    return anomaly, normal
 
-scaler = StandardScaler(with_mean=False)
-scaler.fit(raw_data_eu.iloc[:, 4:49])
+scaler = joblib.load('standard_scaler.pkl')
 le_1 = LabelEncoder()
 le_1.fit(dev_list)
 ohe_1 = OneHotEncoder()
@@ -122,18 +119,18 @@ raw_data_eu, raw_data_tk = unify_to(raw_data_eu, raw_data_tk)
 
 raw_data_eu = keep_valid_data(raw_data_eu)
 # for classification, we only need the anomaly data and the unlabeled data
-anomaly_eu, _, normal_unlabeled_eu = split_and_drop(raw_data_eu)
+anomaly_eu, normal_eu = split_and_drop(raw_data_eu)
 anomaly_eu = label_data(anomaly_eu, is_classification=True)
-normal_unlabeled_eu = mask_data(normal_unlabeled_eu)
+normal_eu = mask_data(normal_eu)
 # take all the Tokyo data as unlabeled data
 raw_data_tk = keep_valid_data(raw_data_tk)
 raw_data_tk = raw_data_tk.fillna(0)
 unlabeled_tk = mask_data(raw_data_tk)
 # create dataset
 # split anomaly data, keep the second part as testset since we don't need unlabeled data for testing
-trainset, testset= train_test_split(anomaly_eu, test_size=0.28, random_state=22)
+trainset, testset= train_test_split(anomaly_eu, test_size=0.20, random_state=22)
 # combine the two unlabeled data partition
-trainset_unlabeled = pd.concat([normal_unlabeled_eu, unlabeled_tk], axis=0)
+trainset_unlabeled = pd.concat([normal_eu, unlabeled_tk], axis=0)
 # combine and shuffle the dataset
 
 print(trainset['ALARM'].value_counts())

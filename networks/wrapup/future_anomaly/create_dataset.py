@@ -6,7 +6,7 @@ import collections
 from numpy.lib.stride_tricks import as_strided as strided
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
-
+from sklearn.externals import joblib
 
 sys.path.insert(0,'/home/oem/Projects')
 from Kylearn.utils.log import log_down
@@ -29,8 +29,9 @@ state_list = ['IS', 'n/a', 'IS-ANR']
 # dataset should be Europe_Network_data from 2018.11 to 2019.03 that Derek shared on March 25
 # do not use May13
 data_eu = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_Network_data.parquet')
+data_eu = data_eu.drop_duplicates()
 data_tk = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Tokyo_Network_Data_1Day.parquet')
-
+data_tk = data_tk.drop_duplicates()
 def unify_to(data_obj, data_sub):
     # data_sub will be convert to format of data_obj
     # label dictionary
@@ -58,8 +59,7 @@ def unify_to(data_obj, data_sub):
     return data_obj, data_sub
 
 # scaler and encoders
-scaler = StandardScaler(with_mean=False)
-scaler.fit(data_eu.iloc[:, 4:49])
+scaler = joblib.load('standard_scaler.pkl')
 le_1 = LabelEncoder()
 le_1.fit(dev_list)
 ohe_1 = OneHotEncoder()
@@ -67,22 +67,25 @@ ohe_1.fit(np.arange(0,len(dev_list)).reshape([-1,1]))
 
 def slid_generate(past_days, future_days, data, state_list=None, device_list=None, alarm_list=None):
     logger.info('Past day(s): %s Future day(s): %s' % (past_days, future_days))
-
+    #keep valid data
     devices = data[data['GROUPBYKEY'].isin(device_list)]
     logger.info('Device type: %s' % device_list)
     devices = devices[devices['ALARM'].isin(alarm_list)]  # filter out devices with alarm out of the list
     logger.info('ALARM: %s' % alarm_list)
-    dev_count = devices['ID'].value_counts()
-    dev_count = dev_count.drop(dev_count[dev_count < past_days + future_days].index).index.tolist()
-    devices = devices[devices['ID'].isin(dev_count)]  # filter out devices that has less data than the time window
-    devices = devices.drop_duplicates()
+
     devices = devices.set_index(['ID', 'TIME']).sort_index().reset_index().fillna(0)
-    print(devices.shape)
+
+
     # drop the devices that has all zero PM values
     devices['sum'] = devices.iloc[:, 4:49].sum(axis = 1)
     devices = devices[devices['sum'] != 0]
     devices = devices.drop(['sum'], axis = 1)
-    # Try one with out scaler
+
+
+    dev_count = devices['ID'].value_counts()
+    dev_count = dev_count.drop(dev_count[dev_count < past_days + future_days].index).index.tolist()
+    devices = devices[devices['ID'].isin(dev_count)]  # filter out devices that has less data than the time window
+
     devices.iloc[:,4:49] = scaler.transform(devices.iloc[:,4:49].values)
     print(devices.shape)
     logger.info('DEVICE COUNT')
@@ -107,33 +110,65 @@ def slid_generate(past_days, future_days, data, state_list=None, device_list=Non
         else:
             return output
 
+
+    global a, b, c
+    a, b, c = 0, 0, 0
+    # def mask_list(i):
+    #     global a,b,c
+    #     # If m+n data do not have the same device type, return False
+    #     if (len(set(i[0:past_days + future_days, 3])) != 1):
+    #         a+=1
+    #         return False
+    #     # If m data are not all in service, return False
+    #     elif (~np.isin(i[0:past_days, 2], state_list).all()):
+    #         b+=1
+    #         return False
+    #     # If any of m data is an anomaly instance, return False
+    #     elif (i[0:past_days, 49].any()):
+    #         c+=1
+    #         return False
+    #     # If i doesn't mach any of above, return True
+    #     else:
+    #         return True
+
     def mask_list(i):
+        global a,b,c
         # If m+n data do not have the same device type, return False
         if (len(set(i[0:past_days + future_days, 3])) != 1):
+            a+=1
             return False
         # If m data are not all in service, return False
-        elif (~np.isin(i[0:past_days, 2], state_list).all()):
-            return False
+        # elif (~np.isin(i[0:past_days, 2], state_list).all()):
+        #     b+=1
+        #     return False
         # If any of m data is an anomaly instance, return False
-        elif (i[0:past_days, 49].any()):
-            return False
+        # elif (i[0:past_days, 49].any()):
+        #     c+=1
+        #     return False
         # If i doesn't mach any of above, return True
         else:
             return True
 
     def label_data(i):
         # If any of the n data is an anomaly instance, return 1
-        if (i[past_days:past_days + future_days, 49].any()):
+        if (i[past_days, 49]==1):
             return 1
+        # if (i[past_days: past_days + future_days, 49].any()):
+        #     return 1
+        # elif (i[0:past_days, 49].any()):
+        #     return 1
         else:
             return 0
 
     devices = get_sliding_windows(devices[:-1], past_days + future_days)
     mask = [mask_list(i) for i in devices]
+    print(a,b,c)
+    print(collections.Counter(mask))
 
     valid_data = devices[mask]
     label = [label_data(i) for i in valid_data]
     assert valid_data.shape[0] == len(label)
+    print(collections.Counter(label))
     return valid_data, label
 
 def slid_generate_un(past_days, future_days, data, state_list=None, device_list=None):
@@ -141,15 +176,15 @@ def slid_generate_un(past_days, future_days, data, state_list=None, device_list=
 
     devices = data[data['GROUPBYKEY'].isin(device_list)]
     logger.info('Device type: %s' % device_list)
-    dev_count = devices['ID'].value_counts()
-    dev_count = dev_count.drop(dev_count[dev_count < past_days + future_days].index).index.tolist()
-    devices = devices[devices['ID'].isin(dev_count)]  # filter out devices that has less data than the time window
-    devices = devices.drop_duplicates()
     devices = devices.set_index(['ID', 'TIME']).sort_index().reset_index().fillna(0)
     # drop the devices that has all zero PM values
     devices['sum'] = devices.iloc[:, 4:49].sum(axis = 1)
     devices = devices[devices['sum'] != 0]
     devices = devices.drop(['sum'], axis = 1)
+    dev_count = devices['ID'].value_counts()
+    dev_count = dev_count.drop(dev_count[dev_count < past_days + future_days].index).index.tolist()
+    devices = devices[devices['ID'].isin(dev_count)]  # filter out devices that has less data than the time window
+
     # Try one with out scaler
     devices.iloc[:,4:49] = scaler.transform(devices.iloc[:,4:49].values)
     print(devices.shape)
@@ -207,17 +242,17 @@ features = X[:,0:m,4:49]
 features = np.expand_dims(features, axis=-1)
 features_train, features_test = train_test_split(features, test_size=0.2, random_state=23)
 # For classification it should be reshape to [-1,12]
-labels = np.array(Y).reshape([-1, 1])
+labels = np.array(Y)
 labels_train, labels_test = train_test_split(labels, test_size=0.2, random_state=23)
 
 # save file
-np.save('data/m%s_n%s_X_train.npy'%(m, n), features_train)
-np.save('data/m%s_n%s_dev_train.npy'%(m, n), devices_train)
-np.save('data/m%s_n%s_y_train.npy'%(m, n), labels_train)
+np.save('loose_data/m%s_n%s_X_train.npy'%(m, n), features_train)
+np.save('loose_data/m%s_n%s_dev_train.npy'%(m, n), devices_train)
+np.save('loose_data/m%s_n%s_y_train.npy'%(m, n), labels_train)
 
-np.save('data/m%s_n%s_X_test.npy'%(m, n), features_test)
-np.save('data/m%s_n%s_dev_test.npy'%(m, n), devices_test)
-np.save('data/m%s_n%s_y_test.npy'%(m, n), labels_test)
+np.save('loose_data/m%s_n%s_X_test.npy'%(m, n), features_test)
+np.save('loose_data/m%s_n%s_dev_test.npy'%(m, n), devices_test)
+np.save('loose_data/m%s_n%s_y_test.npy'%(m, n), labels_test)
 
 
 X_un = slid_generate_un(past_days=m, future_days=n, data=data_tk,
@@ -234,6 +269,6 @@ features_un = np.expand_dims(features_un, axis=-1)
 # For classification it should be reshape to [-1,12]
 
 # save file
-np.save('data/m%s_n%s_X_un_train.npy' % (m, n), features_un)
-np.save('data/m%s_n%s_dev_un_train.npy' % (m, n), devices_un)
+np.save('loose_data/m%s_n%s_X_un_train.npy' % (m, n), features_un)
+np.save('loose_data/m%s_n%s_dev_un_train.npy' % (m, n), devices_un)
 

@@ -6,9 +6,9 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler, OneHotEncoder
 
 # load Tokyo and Europe dataset
 raw_data_tk = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Tokyo_Network_Data_1Day.parquet')
-raw_data_tk = raw_data_tk.drop_duplicates()
+# raw_data_tk = raw_data_tk.drop_duplicates()
 raw_data_eu = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_Network_data.parquet')
-raw_data_eu = raw_data_eu.drop_duplicates()
+# raw_data_eu = raw_data_eu.drop_duplicates()
 # Devices we focus on
 dev_list = ['AMP', 'ETH', 'ETH10G', 'ETHN', 'ETTP', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
 # Alarms we focus on, note that `Laser Off Far End Failure Triggered` and 'Remote Fault' will be excluded
