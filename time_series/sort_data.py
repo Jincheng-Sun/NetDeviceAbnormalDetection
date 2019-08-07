@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from sklearn.externals import joblib
+import numpy as np
 dev_list = ['AMP', 'ETH', 'ETH10G', 'ETHN', 'ETTP', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
 
 alarm_list = [None, 'Excessive Error Ratio',  # 1
@@ -13,8 +14,42 @@ alarm_list = [None, 'Excessive Error Ratio',  # 1
 
 state_list = ['IS', 'n/a', 'IS-ANR']
 
-data = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_Network_data.parquet')
-scaler = joblib.load('standard_scaler.pkl')
+
+# # May dataset
+# data = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_Network_Data_May13.parquet')
+# data.drop('LASTOCCURRENCE', axis=1, inplace=True)
+
+
+# # May 23 dataset
+# data = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/v2_Europe_network_data_pivoted.parquet')
+# labels = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/v2_Europe_network_labels.parquet')
+#
+# # remove PEC for join
+# tmp, _ = data['meta_NHP_ID'].str.rsplit(':',1).str
+# data['ID'] = tmp
+#
+# labels['ID'] = labels['fk']
+#
+# # floor to nearest day
+# data['TIME'] = pd.to_datetime(data['pk_timestamp'], infer_datetime_format=True).dt.floor('1D')
+# labels['TIME'] = pd.to_datetime(labels['time'], infer_datetime_format=True).dt.floor('1D')
+#
+# data = pd.merge(data, labels, on=['ID', 'TIME'])
+# data = data.drop(['pk_id', 'pk_timestamp', 'meta_NHP_ID', 'meta_PEC', 'meta_TID', 'meta_AID', 'meta_SHELF', 'meta_SLOT', 'meta_PORT', 'meta_CHANNEL',
+#             'createdAt', 'description', 'extraAttributes', 'fk', 'time', 'timestamp'], axis=1)
+# rep_list = {'meta_FACILITY': 'GROUPBYKEY',
+#             'meta_STATUS': 'LABEL',
+#             'category': 'ALARM'
+#             }
+# # rename the columns
+# data = data.rename(columns=rep_list)
+# sup_list = ['OPTAVG-OCH', 'OPTMAX-OCH_OPTMIN-OCH_-']
+# data[sup_list] = np.nan
+
+# # March data
+data= pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_Network_data.parquet')
+index = data.columns
+# scaler = joblib.load('standard_scaler.pkl')
 
 # filter data
 devices = data[data['GROUPBYKEY'].isin(dev_list)]
@@ -24,7 +59,7 @@ devices = devices.drop_duplicates(subset=['ID', 'TIME'])
 
 # drop data that has less than 100 days
 dev_count = devices['ID'].value_counts()
-dev_count = dev_count.drop(dev_count[dev_count < 100].index).index.tolist()
+dev_count = dev_count.drop(dev_count[dev_count < 30].index).index.tolist()
 devices = devices[devices['ID'].isin(dev_count)]  # filter out devices that has less data than the time window
 
 # devices.iloc[:, 4:49] = scaler.transform(devices.iloc[:, 4:49].values)
@@ -55,7 +90,8 @@ def plot_per_device(data, device_id):
     # set `TIME` column as index and convert the format to '%y-%mm-%dd'
     anomaly.set_index('TIME', inplace=True)
     anomaly.index = pd.to_datetime(anomaly.index, format='%y-%mm-%dd', unit='s')
-
+    # alarm_type = anomaly['ALARM']
+    print(anomaly['ALARM'])
     oos.set_index('TIME', inplace=True)
     oos.index = pd.to_datetime(oos.index, format='%y-%mm-%dd', unit='s')
     oos = oos[per_device.columns]
@@ -74,6 +110,7 @@ def plot_per_device(data, device_id):
         try:
             for vline in anomaly.index.to_list():
                 ax.axvline(vline, color='r', lw=1, ls='dashed', label='anomaly')
+                # print(anomaly.loc[vline, ['TIME', 'ALARM']])
         except:
             print('No anomaly exsists')
 
@@ -85,21 +122,3 @@ devs = anomalies[anomalies['GROUPBYKEY']==dev_list[0]]['ID'].value_counts().inde
 for dev in devs:
     plot_per_device(devices, dev)
 
-# May dataset
-data2 = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/Europe_Network_Data_May13.parquet')
-
-# May 23 dataset
-data3 = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/v2_Europe_network_data_pivoted.parquet')
-labels = pd.read_parquet('/home/oem/Projects/NetDeviceAbnormalDetection/data/v2_Europe_network_labels.parquet')
-
-# remove PEC for join
-tmp, _ = data3['meta_NHP_ID'].str.rsplit(':',1).str
-data3['ID'] = tmp
-
-labels['ID'] = labels['fk']
-
-# floor to nearest day
-data3['TIME'] = pd.to_datetime(data3['pk_timestamp'], infer_datetime_format=True).dt.floor('1D')
-labels['TIME'] = pd.to_datetime(labels['time'], infer_datetime_format=True).dt.floor('1D')
-
-merged = pd.merge(data3, labels, on=['ID', 'TIME'])
