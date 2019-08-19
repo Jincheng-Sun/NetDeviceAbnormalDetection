@@ -66,7 +66,12 @@ devices = devices[devices['ID'].isin(dev_count)]  # filter out devices that has 
 
 
 anomalies = devices.loc[devices['ALARM'].notna()]
-# 'Device10111'
+
+
+# devices = df.groupby(['meta_facility'])['ID'].value_counts().index.to_frame()
+# devices['meta_facility'].value_counts()
+## Count anomaly devices
+# devices = anomaly.groupby(['category', 'meta_facility']).nunique()['ID']
 
 def plot_per_device(data, device_id):
 
@@ -122,3 +127,38 @@ devs = anomalies[anomalies['GROUPBYKEY']==dev_list[0]]['ID'].value_counts().inde
 for dev in devs:
     plot_per_device(devices, dev)
 
+
+# ALARM                                   GROUPBYKEY
+# Excessive Error Ratio                   ETH10G          2
+#                                         ETTP           13
+# Frequency Out Of Range                  ETTP            3
+# GCC0 Link Failure                       OTM            35
+#                                         OTM2            2
+#                                         OTUTTP          1
+# Gauge Threshold Crossing Alert Summary  AMP            17
+#                                         OPTMON         25
+# Link Down                               ETH10G          2
+# Local Fault                             ETH10G        109
+#                                         ETHN            8
+#                                         ETTP           14
+# Loss Of Clock                           ETH10G          9
+#                                         ETHN           26
+#                                         ETTP            1
+#                                         OTM             1
+#                                         OTUTTP          3
+# Loss Of Frame                           ETH10G         17
+#                                         ETHN            2
+#                                         ETTP            3
+# Loss Of Signal                          ETH10G        208
+#                                         ETHN           15
+#                                         OPTMON         75
+#                                         OTM             1
+#                                         OTM2            2
+#                                         PTP             3
+# OSC OSPF Adjacency Loss                 OSC            18
+# OTU Signal Degrade                      OTM2            1
+# Rx Power Out Of Range                   ETH10G          6
+#                                         ETHN            1
+#                                         OTM             1
+
+eer = anomalies[anomalies['ALARM'] == 'Excessive Error Ratio']['ID'].value_counts()
