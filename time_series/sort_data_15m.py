@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from sklearn.externals import joblib
 import numpy as np
+from numpy.lib.stride_tricks import as_strided as strided
 status_list = ['IS', 'IS-ANR', 'n/a'
                ]
 mypath = '/home/oem/Projects/NetDeviceAbnormalDetection/data/15m_binned_network_data_v1.parquet/'
@@ -61,7 +62,12 @@ def plot_per_device(data, device_id, time_range=pd.date_range('20190523', end='2
     # drop NaN columns
     per_device.dropna('columns', inplace=True, how='all')
 
-    anomaly = per_device.loc[per_device['category'].notna()]
+    try:
+        anomaly = per_device.loc[per_device['category'].notna()]
+        print(anomaly['category'])
+    except:
+        print('No alarm happened'
+              '')
     oos = per_device[~per_device['meta_status'].isin(status_list)]
     # get device type
     device_type = per_device['meta_facility'].values[0]
@@ -69,7 +75,7 @@ def plot_per_device(data, device_id, time_range=pd.date_range('20190523', end='2
     status = per_device['meta_status'].values
     print(status)
 
-    print(anomaly['category'])
+
 
     plt.figure()
     # plot a subplot for each PM value
@@ -99,12 +105,16 @@ def plot_per_device(data, device_id, time_range=pd.date_range('20190523', end='2
 #
 # plot_per_device(df, 'Node339:ETH10G-1-2-8')
 
-local_fault = anomaly[anomaly['category'] == 'local fault - service affecting unplanned']['ID'].value_counts()
-loss_of_clock = anomaly[anomaly['category'] == 'loss of clock - service affecting unplanned']['ID'].value_counts()
-loss_of_data = anomaly[anomaly['category'] == 'loss of data synch - service affecting unplanned']['ID'].value_counts()
-loss_of_frame = anomaly[anomaly['category'] == 'loss of frame - service affecting unplanned']['ID'].value_counts()
-# loss_of_multiframe = anomaly[anomaly['category'] == 'loss of multiframe - service affecting unplanned']['ID'].value_counts()
-loss_of_signal = anomaly[anomaly['category'] == 'loss of signal - service affecting unplanned']['ID'].value_counts()
-odu_ais = anomaly[anomaly['category'] == 'odu ais - service affecting unplanned']['ID'].value_counts()
-odu_lck = anomaly[anomaly['category'] == 'odu lck - service affecting unplanned']['ID'].value_counts()
-pre_fec = anomaly[anomaly['category'] == 'pre-fec signal fail - service affecting unplanned']['ID'].value_counts()
+# local_fault = anomaly[anomaly['category'] == 'local fault - service affecting unplanned']['ID'].value_counts()
+# loss_of_clock = anomaly[anomaly['category'] == 'loss of clock - service affecting unplanned']['ID'].value_counts()
+# loss_of_data = anomaly[anomaly['category'] == 'loss of data synch - service affecting unplanned']['ID'].value_counts()
+# loss_of_frame = anomaly[anomaly['category'] == 'loss of frame - service affecting unplanned']['ID'].value_counts()
+# # loss_of_multiframe = anomaly[anomaly['category'] == 'loss of multiframe - service affecting unplanned']['ID'].value_counts()
+# loss_of_signal = anomaly[anomaly['category'] == 'loss of signal - service affecting unplanned']['ID'].value_counts()
+# odu_ais = anomaly[anomaly['category'] == 'odu ais - service affecting unplanned']['ID'].value_counts()
+# odu_lck = anomaly[anomaly['category'] == 'odu lck - service affecting unplanned']['ID'].value_counts()
+# pre_fec = anomaly[anomaly['category'] == 'pre-fec signal fail - service affecting unplanned']['ID'].value_counts()
+
+
+
+
