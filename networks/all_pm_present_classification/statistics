@@ -1,0 +1,96 @@
+dataset shape: (3385060, 228) 211pms
+
+# OPTMON     1060114
+# WAN         384592
+# ETH10G      341529
+# NMCMON      339219
+# OTM2        237612
+# OTM4        180460
+# AMP         176190
+# FLEX        139611
+# OSC         100837
+# OTM0         94939
+# PTP          72907
+# ODUCTP       50722
+# ETTP         49985
+# ETH100G      49210
+# OTUTTP       35384
+# ETH          16467
+# OC192        16436
+# RAMAN        15189
+# ODUTTP        6485
+# ETH40G        4358
+# OTMC2         3404
+# OTMFLEX       3248
+# OTM1          3089
+# ODU0          1469
+# ODU4           868
+# OTM3           214
+# ODU1           210
+# OTDRCFG        149
+# STTP           127
+# OC12            22
+# ODUFLEX          6
+# TCMTTP           6
+# OC48             2
+
+
+# n/a         2622573
+# IS           751222
+# IS-ANR        11236
+# OOS-AU           28
+# OOS-AUMA          1
+
+
+# laser off far end failure triggered       2156
+# loss of signal                            1613
+# far end client signal fail                1050
+# odu ais                                    621
+# remote fault                               612
+# local fault                                262
+# odu bdi                                    204
+# gcc0 link failure                          170
+# loss of clock                              151
+# loss of frame                              133
+# odu lck                                     75
+# pre-fec signal degrade                      69
+# otu signal degrade                          62
+# link down                                   58
+# client service mismatch                     44
+# otu bdi                                     27
+# terminal - loopback active                  24
+# rx power out of range                       23
+# gauge threshold crossing alert summary      22
+# loss of frame delineation                   21
+# facility - loopback active                  16
+# loss of data synch                          16
+# revertive - protection switch complete      13
+# odu trace identifier mismatch               13
+# gcc1 ospf adjacency loss                    13
+# laser frequency out of range                13
+# msi mismatch                                11
+# pre-fec signal fail                         11
+# excessive error ratio                       11
+# gcc1 link failure                           11
+# loss of channel                             10
+# remote port unreachable                      8
+# tx tuning in progress                        7
+# odu oci                                      7
+# frequency out of range                       6
+# odu signal degrade                           5
+# rx channel power out of range                5
+# otdr trace in progress                       5
+# channel contention                           5
+# osc loss of signal                           5
+# forced switch active                         3
+# target unachievable                          3
+# opu ais                                      2
+# tx power in reduced state                    2
+# gcc0 ospf adjacency loss                     1
+# optical line fail                            1
+# telemetry loss of signal                     1
+# minimum gain                                 1
+# loss of lock                                 1
+# tr control echo trace mismatch               1
+# remote defect indication                     1
+# osc ospf adjacency loss                      1
