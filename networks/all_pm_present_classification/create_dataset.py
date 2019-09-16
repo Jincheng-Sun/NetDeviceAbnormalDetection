@@ -46,39 +46,39 @@ device_type = all_pms.iloc[:, 2]
 
 del all_pms
 
-# Second, rescale features, encode device type and targets
-
-feature_scaler = StandardScaler()
-dev_label_en = LabelEncoder()
-dev_oh_en = OneHotEncoder()
-target_label_en = LabelEncoder()
-target_oh_en = OneHotEncoder()
-
-features = feature_scaler.fit_transform(features)
-device_type = dev_label_en.fit_transform(device_type)
-device_type = dev_oh_en.fit_transform(device_type.reshape(-1,1))
-device_type = device_type.toarray()
-targets = target_label_en.fit_transform(targets)
-targets = target_oh_en.fit_transform(targets.reshape(-1,1))
-targets = targets.toarray()
-
-joblib.dump(feature_scaler,'models/feature_scaler')
-joblib.dump(dev_label_en,'models/dev_label_en')
-joblib.dump(dev_oh_en,'models/dev_oh_en')
-joblib.dump(target_label_en,'models/target_label_en')
-joblib.dump(target_oh_en,'models/target_oh_en')
-
-
-# last, split and save data
-
-feature_train, feature_test, device_train, device_test, target_train, target_test, target_binary_train, \
-target_binary_test = train_test_split(features, device_type, targets, targets_binary, test_size=0.2, random_state=25)
-
-np.save('data/feature_train',feature_train)
-np.save('data/feature_test',feature_test)
-np.save('data/device_train',device_train)
-np.save('data/device_test',device_test)
-np.save('data/target_train',target_train)
-np.save('data/target_test',target_test)
-np.save('data/target_binary_train',target_binary_train)
-np.save('data/target_binary_test',target_binary_test)
+# # Second, rescale features, encode device type and targets
+#
+# feature_scaler = StandardScaler()
+# dev_label_en = LabelEncoder()
+# dev_oh_en = OneHotEncoder()
+# target_label_en = LabelEncoder()
+# target_oh_en = OneHotEncoder()
+#
+# features = feature_scaler.fit_transform(features)
+# device_type = dev_label_en.fit_transform(device_type)
+# device_type = dev_oh_en.fit_transform(device_type.reshape(-1,1))
+# device_type = device_type.toarray()
+# targets = target_label_en.fit_transform(targets)
+# targets = target_oh_en.fit_transform(targets.reshape(-1,1))
+# targets = targets.toarray()
+#
+# joblib.dump(feature_scaler,'models/feature_scaler')
+# joblib.dump(dev_label_en,'models/dev_label_en')
+# joblib.dump(dev_oh_en,'models/dev_oh_en')
+# joblib.dump(target_label_en,'models/target_label_en')
+# joblib.dump(target_oh_en,'models/target_oh_en')
+#
+#
+# # last, split and save data
+#
+# feature_train, feature_test, device_train, device_test, target_train, target_test, target_binary_train, \
+# target_binary_test = train_test_split(features, device_type, targets, targets_binary, test_size=0.2, random_state=25)
+#
+# np.save('data/feature_train',feature_train)
+# np.save('data/feature_test',feature_test)
+# np.save('data/device_train',device_train)
+# np.save('data/device_test',device_test)
+# np.save('data/target_train',target_train)
+# np.save('data/target_test',target_test)
+# np.save('data/target_binary_train',target_binary_train)
+# np.save('data/target_binary_test',target_binary_test)

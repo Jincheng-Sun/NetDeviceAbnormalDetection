@@ -1,53 +1,53 @@
-2019-07-27 23:44:12,637 - INFO: Past day(s): 3 Future day(s): 2
-2019-07-27 23:44:13,402 - INFO: Device type: ['AMP', 'ETH', 'ETH10G', 'ETHN', 'ETTP', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
-2019-07-27 23:44:13,877 - INFO: ALARM: [None, 'Excessive Error Ratio', 'Frequency Out Of Range', 'GCC0 Link Failure', 'Gauge Threshold Crossing Alert Summary', 'Link Down', 'Local Fault', 'Loss Of Clock', 'Loss Of Frame', 'Loss Of Signal', 'OSC OSPF Adjacency Loss', 'OTU Signal Degrade', 'Rx Power Out Of Range']
-2019-07-27 23:44:35,321 - INFO: DEVICE COUNT
-2019-07-27 23:44:35,419 - INFO: 
+2019-08-01 21:22:31,722 - INFO: Past day(s): 3 Future day(s): 2
+2019-08-01 21:22:32,408 - INFO: Device type: ['AMP', 'ETH', 'ETH10G', 'ETHN', 'ETTP', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
+2019-08-01 21:22:32,871 - INFO: ALARM: [None, 'Excessive Error Ratio', 'Frequency Out Of Range', 'GCC0 Link Failure', 'Gauge Threshold Crossing Alert Summary', 'Link Down', 'Local Fault', 'Loss Of Clock', 'Loss Of Frame', 'Loss Of Signal', 'OSC OSPF Adjacency Loss', 'OTU Signal Degrade', 'Rx Power Out Of Range']
+2019-08-01 21:22:50,184 - INFO: DEVICE COUNT
+2019-08-01 21:22:50,280 - INFO: 
 OPTMON    1561260
-AMP        231597
+AMP        231593
 OTM        134293
 PTP         87282
 OSC         79588
-ETH10G      68531
+ETH10G      66698
 OTUTTP      36117
-ETTP        14528
-ETHN        12104
+ETTP        14279
+ETHN        11902
 OTM2        10029
-ETH          8948
+ETH          8906
 Name: GROUPBYKEY, dtype: int64
-2019-07-27 23:44:35,419 - INFO: ALARM COUNT
-2019-07-27 23:44:35,514 - INFO: 
-0                                         2242969
-Loss Of Signal                                566
-Local Fault                                   262
+2019-08-01 21:22:50,280 - INFO: ALARM COUNT
+2019-08-01 21:22:50,375 - INFO: 
+0                                         2240676
+Loss Of Signal                                549
+Local Fault                                   250
 GCC0 Link Failure                              97
-Loss Of Clock                                  94
-Loss Of Frame                                  55
+Loss Of Clock                                  89
 Gauge Threshold Crossing Alert Summary         55
+Loss Of Frame                                  53
 OTU Signal Degrade                             49
 Rx Power Out Of Range                          35
 OSC OSPF Adjacency Loss                        31
-Excessive Error Ratio                          26
 Frequency Out Of Range                         26
+Excessive Error Ratio                          25
 Link Down                                      12
 Name: ALARM, dtype: int64
-2019-07-27 23:44:35,991 - INFO: SAMPLE COUNT
-2019-07-27 23:44:36,005 - INFO: 
-0    2242969
-1       1308
+2019-08-01 21:22:50,821 - INFO: SAMPLE COUNT
+2019-08-01 21:22:50,835 - INFO: 
+0    2240676
+1       1271
 Name: ALARM, dtype: int64
-2019-07-27 23:46:14,663 - INFO: Past day(s): 3 Future day(s): 2
-2019-07-27 23:46:14,914 - INFO: Device type: ['AMP', 'ETH', 'ETH10G', 'ETHN', 'ETTP', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
-2019-07-27 23:46:22,185 - INFO: DEVICE COUNT
-2019-07-27 23:46:22,235 - INFO: 
+2019-08-01 21:23:58,939 - INFO: Past day(s): 3 Future day(s): 2
+2019-08-01 21:23:59,137 - INFO: Device type: ['AMP', 'ETH', 'ETH10G', 'ETHN', 'ETTP', 'OPTMON', 'OSC', 'OTM', 'OTM2', 'OTUTTP', 'PTP']
+2019-08-01 21:24:04,908 - INFO: DEVICE COUNT
+2019-08-01 21:24:04,937 - INFO: 
 OPTMON    386941
 AMP        98315
 OTM        79664
 PTP        23768
 OSC        18211
-ETH10G     10445
+ETH10G      9787
 OTUTTP      7268
-ETHN        6342
+ETHN        6125
 OTM2        5390
-ETTP        1676
+ETTP        1665
 Name: GROUPBYKEY, dtype: int64

@@ -1,0 +1,8 @@
+..The testset in folder 'data' is taken from datset 'Europe_Network_data.parquet'
+
+There are 5 tf models in folder 'TF_models'
+
+The scaler and encoders are in folder 'encoders'
+
+There is a visualization function in toolib.draw_cm.py
+

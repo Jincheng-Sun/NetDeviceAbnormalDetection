@@ -1,11 +1,12 @@
 import sys
 sys.path.insert(0,'/home/oem/Projects/Kylearn')
-from Models.Attention.attn_model import Attn_model_1d
-from Models.Attention.attn_dataset import Attn_dataset_1d
-from Networks.residual_network import Resnet_1d
-from evaluation.metrics import metrics_binary, metrics_multi, auc_roc
+from networks.all_pm_present_classification.model import Attn_model_1d
+from networks.all_pm_present_classification.dataset import Attn_dataset_1d
+from networks.all_pm_present_classification.network import Cnn_3layers, Resnet_1d
+from evaluation.metrics import metrics_binary, metrics_multi, auc_roc, precision_recall
 from visualization.draw_matrix import draw_confusion_matrix
 from visualization.draw_roc import plot_roc_curve
+from visualization.draw_pr import plot_pr_curve
 from networks.attention.results_process import visualize_proba
 import numpy as np
 
@@ -39,27 +40,39 @@ dataset = Attn_dataset_1d(feature_path='data/feature',
                                out_num=1
                                )
 resnet_1d = Resnet_1d()
-model = Attn_model_1d(ckpt_path='models/', tsboard_path='log/', network=resnet_1d,input_shape=[211, 1],
+model = Attn_model_1d(ckpt_path='models/residual/', tsboard_path='logs/', network=resnet_1d,input_shape=[211, 1],
                    num_classes=1, feature_num=211, dev_num=33, lr=0.005, batch_size=100, regression=True)
 #
 
-model.initialize_variables()
-model.save_tensorboard_graph()
-model.train(dataset)
+# model.initialize_variables()
+# model.save_tensorboard_graph()
+# model.train(dataset)
 
 #
-# model.restore_checkpoint(50000)
+model.restore_checkpoint(17000)
 # #
-# prediction = model.get_prediction(dataset.test_set, is_training = True)
-#
-# cm, accuracy = metrics_multi(
-#     y_pred=prediction, y_test=dataset.test_set['y'], labels=alarm_list)
-#
-# import matplotlib.pyplot as pyplot
-# pyplot.rcParams['savefig.dpi'] = 300  # pixel
-# pyplot.rcParams['figure.dpi'] = 300  # resolution
-# pyplot.rcParams["figure.figsize"] = [5,4] # figure size
-#
-# draw_confusion_matrix(cm, alarm_list, precision=True, plt=pyplot)
-#
-# attn1, attn2 = model.get_attn_matrix()
+prediction = model.get_prediction(dataset.test_set[:5000], is_training = False)
+
+proba = model.get_proba(dataset.test_set[:5000], is_training = False)
+auc, fprs, tprs, thresholds = auc_roc(y_pred=proba, y_test=dataset.test_set['y'][:5000])
+
+plot_roc_curve(fprs, tprs, auc, x_axis=0.05)
+
+auc, precisions, recalls, thresholds = precision_recall(y_pred=proba, y_test=dataset.test_set['y'][:5000])
+
+plot_pr_curve(recall=recalls, precision=precisions, auc=auc)
+
+cm, fpr, acc, precision, recall = metrics_binary(
+    y_pred=proba, y_test=dataset.test_set['y'][:5000],threshold=0.9)
+
+
+import matplotlib.pyplot as pyplot
+pyplot.rcParams['savefig.dpi'] = 300  # pixel
+pyplot.rcParams['figure.dpi'] = 300  # resolution
+pyplot.rcParams["figure.figsize"] = [5,4] # figure size
+
+draw_confusion_matrix(cm, ['normal', 'anomaly'], precision=True, plt=pyplot)
+
+d1 = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+attn1, attn2 = model.get_attn_matrix(d1)
