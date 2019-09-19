@@ -106,6 +106,7 @@ def preprocessing(data):
     # consider using StandardScaler with with_mean = False
     # Use scaler
     # PMs = data.iloc[:, 1:46].values
+    print(data.iloc[:1, 1:46].columns)
     PMs = scaler.transform(data.iloc[:, 1:46])
 
 
